@@ -34,7 +34,7 @@
 			<!-- layout, please refer to http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/PatternLayout.html -->
 			<pattern>%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p - %C{1}: %m%n</pattern>
 			<!-- log-level, one of the following options: [all|debug|info|warn|error|fatal|off] -->
-			<level>warn</level>
+			<level>debug</level>
 			<!-- filename, used only when appender != console -->
 			<filename>jWebSocket.log</filename>
 			<!-- controls write cache for logging -->
@@ -57,24 +57,60 @@
 	-->
 	<!-- jWebSocket engine configuration -->
 	<engines>
-		<engine>
+		<!--engine>
 			<name>org.jwebsocket.tcp.engines.TCPEngine</name>
 			<id>tcp0</id>
 			<jar>jWebSocketTCPEngine-0.10.jar</jar>
 			<port>8787</port>
-			<!-- these domains are accepted by the engine listening on the above mentioned port -->
+			< !- - these domains are accepted by the engine listening on the above mentioned port - - >
 			<domains>
 				<domain>jwebsocket.org</domain>
 				<domain>jwebsocket.com</domain>
 			</domains>
-			<!-- default session timeout 1h, max timeout currently 1 hour -->
+			< !- - default session timeout 1h, max timeout currently 1 hour - - >
 			<timeout>0</timeout>
-			<!--
+			< !- -
 				maximum size of the data packet that the engine will read,
 				if the frame size is larger than this the connection will be closed.
-			-->
+			- - >
+			<maxframesize>1048840</maxframesize>
+		</engine-->
+		
+		<engine>
+			<name>org.jwebsocket.tcp.TCPEngine</name>
+			<id>tcp0</id>
+			<jar>jWebSocketTCPEngine-1.0.jar</jar>
+			<port>8787</port>
+			<sslport>9797</sslport>
+			<keystore>jWebSocket.ks</keystore>
+			<password>jWebSocket</password>
+			<domains>
+				<domain>jwebsocket.org</domain>
+				<domain>jwebsocket.com</domain>
+				<domain>localhost</domain>
+			</domains>
+			<timeout>0</timeout>
 			<maxframesize>1048840</maxframesize>
 		</engine>
+
+		<!-- NIO Engine Configuration -->
+		<!--engine>
+			<name>org.jwebsocket.tcp.nio.NioTcpEngine</name>
+			<id>tcp0</id>
+			<jar>jWebSocketNIOEngine-1.0.jar</jar>
+			<port>8787</port>
+			<sslport>9797</sslport>
+			<keystore>jWebSocket.ks</keystore>
+			<password>jWebSocket</password>
+			<domains>
+				<domain>jwebsocket.org</domain>
+				<domain>jwebsocket.com</domain>
+				<domain>localhost</domain>
+			</domains>
+			<timeout>0</timeout>
+			<maxframesize>1048840</maxframesize>
+		</engine-->
+		
 	</engines>
 
 	<!-- server types to be instantiated for jWebSocket -->
@@ -84,11 +120,39 @@
 			<id>ts0</id>
 			<jar>jWebSocketTokenServer-0.10.jar</jar>
 		</server-->
-		<server>
+		<!--server>
 			<name>org.jwebsocket.server.CustomServer</name>
 			<id>cs0</id>
 			<jar>jWebSocketCustomServer-0.10.jar</jar>
+		</server-->
+		
+		<server>
+			<name>org.jwebsocket.server.TokenServer</name>
+			<id>ts0</id>
+			<jar>jWebSocketTokenServer-1.0.jar</jar>
+			<!-- define the thread pool properties. Thread are spawned when Token's spawnThread value is true 
+			 Queue sizes and maximum pool sizes may be traded off for each other: Using large queues and small pools minimizes CPU usage, OS resources, and context-switching overhead, but can lead to artificially low throughput. 
+			 If tasks frequently block (for example if they are I/O bound), a system may be able to schedule time for more threads than you otherwise allow. 
+			 Use of small queues generally requires larger pool sizes, which keeps CPUs busier but may encounter unacceptable scheduling overhead, which also decreases throughput.
+			 -->
+			<threadPool>
+				<!--  number of thread that are "waiting" even if the queue is empty  -->
+				<corePoolSize>10</corePoolSize>
+				<!--  number maximum of thread that can be running at the same time -->
+				<maximumPoolSize>100</maximumPoolSize>
+				<!--  time before the desctruction of "free" threads (seconds) -->
+				<keepAliveTime>60</keepAliveTime>
+				<!--  size of the blocking queue. Connection will be refused if the queue is full and the poolsize is equals to the maximumPoolSize -->
+				<blockingQueueSize>1000</blockingQueueSize>
+			</threadPool>
 		</server>
+
+		
+		<server>
+			<name>org.jwebsocket.server.CustomServer</name>
+			<id>cs0</id>
+			<jar>jWebSocketCustomServer-1.0.jar</jar>
+		</server>		
 	</servers>
 
 	<!-- jWebSocket global rights -->
@@ -211,14 +275,12 @@
 
 	<!-- plug-ins to be instantiated for jWebSocket -->
 	<plugins>
-		<plugin>
+		<!--plugin>
 			<name>org.jwebsocket.plugins.system.SystemPlugIn</name>
 			<ns>org.jWebSocket.plugins.system</ns>
 			<id>jws.system</id>
 			<jar>jWebSocketServer-0.10.jar</jar>
-			<!-- plug-in specific settings -->
 			<settings>
-				<!-- specify whether open, close, login, logout events should be broadcasted per default -->
 				<setting key="broadcastOpenEvent">true</setting>
 				<setting key="broadcastCloseEvent">true</setting>
 				<setting key="broadcastLoginEvent">true</setting>
@@ -227,8 +289,8 @@
 			<server-assignments>
 				<server-assignment>ts0</server-assignment>
 			</server-assignments>
-		</plugin>
-		<plugin>
+		</plugin-->
+		<!--plugin>
 			<name>org.jwebsocket.plugins.admin.AdminPlugIn</name>
 			<id>jws.admin</id>
 			<ns>org.jWebSocket.plugins.admin</ns>
@@ -239,8 +301,8 @@
 			<settings>
 				<setting key="allowShutdown">true</setting>
 			</settings>
-		</plugin>
-		<plugin>
+		</plugin-->
+		<!--plugin>
 			<name>org.jwebsocket.plugins.flashbridge.FlashBridgePlugIn</name>
 			<id>jws.flashbridge</id>
 			<ns>org.jWebSocket.plugins.flashbridge</ns>
@@ -248,7 +310,7 @@
 			<server-assignments>
 				<server-assignment>ts0</server-assignment>
 			</server-assignments>
-		</plugin>
+		</plugin-->
 		<!--
 		<plugin>
 			<name>org.jwebsocket.plugins.chat.ChatPlugIn</name>
@@ -260,7 +322,7 @@
 			</server-assignments>
 		</plugin>
 		-->
-		<plugin>
+		<!--plugin>
 			<name>org.jwebsocket.plugins.sharedobjects.SharedObjectsPlugIn</name>
 			<id>jws.sharedObjects</id>
 			<ns>org.jWebSocket.plugins.sharedobjects</ns>
@@ -268,8 +330,8 @@
 			<server-assignments>
 				<server-assignment>ts0</server-assignment>
 			</server-assignments>
-		</plugin>
-		<plugin>
+		</plugin-->
+		<!--plugin>
 			<name>org.jwebsocket.plugins.streaming.StreamingPlugIn</name>
 			<id>jws.streaming</id>
 			<ns>org.jWebSocket.plugins.streaming</ns>
@@ -277,8 +339,8 @@
 			<server-assignments>
 				<server-assignment>ts0</server-assignment>
 			</server-assignments>
-		</plugin>
-		<plugin>
+		</plugin-->
+		<!--plugin>
 			<name>org.jwebsocket.plugins.jdbc.JDBCPlugIn</name>
 			<id>jws.jdbc</id>
 			<ns>org.jWebSocket.plugins.jdbc</ns>
@@ -287,39 +349,25 @@
 				<server-assignment>ts0</server-assignment>
 			</server-assignments>
 			<settings>
-				<!-- specify database settings -->
 				<setting key="db_driver">com.mysql.jdbc.Driver</setting>
 				<setting key="db_url">jdbc:mysql://localhost:3306/ria-db</setting>
-				<!-- System user -->
 				<setting key="db_sys_usr_id">fffSys</setting>
 				<setting key="db_sys_usr_pw">sys_password</setting>
-				<!-- Demo user -->
 				<setting key="db_demo_user_id">fffDemo</setting>
 				<setting key="db_demo_user_pw">demo_password</setting>
-				<!-- Application user  -->
 				<setting key="db_app_user_id">fffApp</setting>
 				<setting key="db_app_user_pw">app_password</setting>
 			</settings>
-		</plugin>
-		<plugin>
+		</plugin-->
+		<!--plugin>
 			<name>org.jwebsocket.plugins.filesystem.FileSystemPlugIn</name>
 			<id>jws.filesystem</id>
 			<ns>org.jWebSocket.plugins.filesystem</ns>
 			<jar>jWebSocketServer-0.10.jar</jar>
-			<!-- plug-in specific settings -->
 			<settings>
-				<!-- specify folder locations -->
-				<!-- examples for pure websocket server w/o am attached web server -->
-				<!--
-				<setting key="publicDir">%JWEBSOCKET_HOME%/public/</setting>
-				<setting key="privateDir">%JWEBSOCKET_HOME%/private/</setting>
-				<setting key="webroot">http://jwebsocket.org/</setting>
-				-->
-				<!-- examples for windows based websocket servers -->
 				<setting key="alias:privateDir">c:/svn/jWebSocket/trunk/jWebSocketClient/web/users/{username}/</setting>
 				<setting key="alias:publicDir">c:/svn/jWebSocket/trunk/jWebSocketClient/web/public/</setting>
 				<setting key="alias:webroot">http://localhost/jwc/public/</setting>
-				<!-- MIME Types -->
 				<setting key="mimetype:image/gif">.gif</setting>
 				<setting key="mimetype:image/png">.png</setting>
 				<setting key="mimetype:image/jpeg">.jpg .jpeg .jpe</setting>
@@ -328,10 +376,10 @@
 			<server-assignments>
 				<server-assignment>ts0</server-assignment>
 			</server-assignments>
-		</plugin>
+		</plugin-->
 
 		<!-- this is a sample for a user plug-in -->
-		<plugin>
+		<!--plugin>
 			<name>org.jwebsocket.plugins.sample.SamplePlugIn</name>
 			<id>jws.sample</id>
 			<ns>org.jWebSocket.plugins.sample</ns>
@@ -339,8 +387,8 @@
 			<server-assignments>
 				<server-assignment>ts0</server-assignment>
 			</server-assignments>
-		</plugin>
-		<plugin>
+		</plugin-->
+		<!--plugin>
 			<name>org.jwebsocket.plugins.rpc.RPCPlugIn</name>
 			<id>jws.rpc</id>
 			<ns>org.jWebSocket.plugins.rpc</ns>
@@ -349,33 +397,21 @@
 				<server-assignment>ts0</server-assignment>
 			</server-assignments>
 			<settings>
-				<!-- list all jars from %JWEBSOCKET_HOME%/libs or %CLASSPATH% path -->
 				<setting key="class:org.jwebsocket.rpc.sample.SampleRPCLibrary">jWebSocketSamples-0.10.jar</setting>
-				<!--
-				<setting key="class:MyOwnRPCLibrary">MyOwnRPCLibrary.jar</setting>
-				<setting key="class:AnyThirdPartyRPCLibrary">AnyThirdPartyRPCLibrary.jar</setting>
-				-->
 
-				<!-- list all granted methods for RPC, users need to be authorized individually and
-					assign granted RPC methods to certain roles -->
-				<!-- new RPC library -->
 				<setting key="roles:org.jwebsocket.rpc.sample.SampleRPCLibrary.sampleTokenRPC">Administrator, User, Guest</setting>
 				<setting key="roles:org.jwebsocket.rpc.sample.SampleRPCLibrary.getMD5">Administrator, User, Guest</setting>
-				<!--
-				<setting key="roles:org.jwebsocket.rpc.sample.SampleRPCLibrary.getProtected">Administrator, User, Guest</setting>
-				-->
 			</settings>
-		</plugin>
+		</plugin-->
 	</plugins>
 
 	<!-- filters to be instantiated for jWebSocket -->
 	<filters>
-		<filter>
+		<!--filter>
 			<name>org.jwebsocket.filters.system.SystemFilter</name>
 			<ns>org.jWebSocket.filters.system</ns>
 			<id>systemFilter</id>
 			<jar>jWebSocketPlugins-0.10.jar</jar>
-			<!-- plug-in specific settings -->
 			<settings>
 				<setting key="key">value</setting>
 			</settings>
@@ -391,7 +427,7 @@
 			<server-assignments>
 				<server-assignment>ts0</server-assignment>
 			</server-assignments>
-		</filter>
+		</filter-->
 	</filters>
 
 	<!-- jWebSocket users -->
