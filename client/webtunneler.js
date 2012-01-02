@@ -37,11 +37,16 @@ var explAudio = document.getElementById('expl');
 function openConnection() {
   if (conn.readyState === undefined || conn.readyState > 1) {
     //conn = new WebSocket('ws://localhost:8787', 'custom');
-    conn = new WebSocket('ws://localhost:8787/?;prot=custom');
+    //conn = new WebSocket('ws://localhost:8787', 'json');
+    //conn = new WebSocket('ws://localhost:8787', 'text');
+    //conn = new WebSocket('ws://localhost:8787', 'custom/text');
+    //conn = new WebSocket('ws://localhost:8787/?;prot=custom');
+    //conn = new WebSocket('ws://localhost:8787/?;prot=text');
+    conn = new WebSocket('ws://localhost:8787/?;subprot=custom/text');
     conn.onopen = function () {
       alert('Socket open');
       var prefix = (window.location.href.indexOf('new') >= 0) ? 'NEW' : 'JOIN';
-      conn.send(prefix+":1");
+      conn.send("{id: 1; cmd: "+prefix+"}");
     };
 
     conn.onmessage = processPacket;
@@ -54,20 +59,24 @@ function openConnection() {
 
 function processPacket(event) {
   //alert(event.data);
-  ss = event.data.split(':');
-  if (ss[0] == 'INIT') {
-    initBoard(ss);
+  //ss = event.data.split(':');
+  //var data = eval('(' + event.data + ')');
+  var data = JSON.parse(event.data);
+  //if (ss[0] == 'INIT') {
+  if (data.cmd == 'INIT') {
+    initBoard(data);
     return;
   }
-  if (ss[0] == 'EXPL') {
+  //if (ss[0] == 'EXPL') {
+  if (data.cmd == 'EXPL') {
     enemyDeaths++;
     explode();
     return;
   }
-  eorientation = parseInt(ss[0]);
-  etx = parseInt(ss[1]);
-  ety = parseInt(ss[2]);
-  var enemyBulletsFired = parseInt(ss[3]);
+  eorientation = data.eor;
+  etx = data.etx;
+  ety = data.ety;
+  var enemyBulletsFired = data.ebf;
   for (var i = 0; i < enemyBulletsFired; i++) {
     enemyBullets.push(newBullet(etx, ety, eorientation));
   }
@@ -108,14 +117,14 @@ function recharge() {
 }
 
 
-function initBoard(ss) {
-  bx = parseInt(ss[1]);
-  by = parseInt(ss[2]);
+function initBoard(data) {
+  bx = data.bx;
+  by = data.by;
   tx = bx + BASE_WIDTH/2;
   ty = by + BASE_HEIGHT/2;
 
-  ebx = parseInt(ss[3]);
-  eby = parseInt(ss[4]);
+  ebx = data.ebx;
+  eby = data.eby;
   
   health = MAX_HEALTH;
   energy = MAX_ENERGY;
@@ -167,7 +176,7 @@ function updatePos() {
 
 function sendPos() {
   if (conn.readyState !== 1) {return;}
-  conn.send(""+orientation+":"+tx+":"+ty+":"+bulletsFired);
+  conn.send("{or:"+orientation+";x:"+tx+";y:"+ty+";b:"+bulletsFired+"}");
   bulletsFired = 0;
 }
 
