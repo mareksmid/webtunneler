@@ -24,7 +24,7 @@
 		define the protocol, default protocol if not specified is 'json'
 		possible values are [json|xml|csv]
 	-->
-	<protocol>json</protocol>
+	<protocol>custom</protocol>
 
 	<!--
 		the unique ID of this instance within a jWebSocket cluster
