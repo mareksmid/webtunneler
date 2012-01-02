@@ -23,7 +23,7 @@
 	</appender>
 	
 	<appender name="developmentLog" class="org.apache.log4j.ConsoleAppender">
-		<param name="threshold" value="debug"/>
+		<param name="threshold" value="info"/>
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p - %C{1}: %m%n" />
 		</layout>
@@ -38,7 +38,7 @@
 		<param name="bufferSize" value="16384" />
 		<!-- date pattern controls the roll-over not the date format -->
 		<param name="datePattern" value="'.'yyyy-MM-dd"/>
-		<param name="threshold" value="debug"/>
+		<param name="threshold" value="info"/>
 		<param name="append" value="true" />
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p - %C{1}: %m%n" />
@@ -55,7 +55,7 @@
 		<param name="bufferSize" value="16384" />
 		<!-- date pattern controls the roll-over not the date format -->
 		<param name="datePattern" value="'.'yyyy-MM-dd"/>
-		<param name="threshold" value="debug"/>
+		<param name="threshold" value="info"/>
 		<param name="append" value="true" />
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p - %C{1}: %m%n" />
@@ -103,7 +103,7 @@
 
 	<root>
 		<!-- TRACE, DEBUG, INFO, WARN, ERROR or FATAL --> 
-		<priority value="trace" />
+		<priority value="info" />
 		<!-- select one of the above declared appenders -->
 		<!-- for automated tests: -->
 		<!-- <appender-ref ref="testLog" /> -->

@@ -5,6 +5,9 @@
 
 package cz.mareksmid.webtunneler.server2;
 
+import com.google.gson.Gson;
+import cz.mareksmid.webtunneler.server2.json.InitResponsePacket;
+import cz.mareksmid.webtunneler.server2.json.PosPacket;
 import org.jwebsocket.api.WebSocketConnector;
 import org.jwebsocket.api.WebSocketPacket;
 import org.jwebsocket.kit.RawPacket;
@@ -28,10 +31,10 @@ class WSWorker {
         this.id = id;
     }
 
-    public void processPacket(String s, WebSocketConnector c) {
+    public void processPacket(PosPacket pp, WebSocketConnector c) {
         if (!assigned) {return;}
 
-        WebSocketPacket p = new RawPacket(s);
+        WebSocketPacket p = new RawPacket(new Gson().toJson(pp));
 
         if (c.equals(first)) {
             second.sendPacket(p);
@@ -40,7 +43,8 @@ class WSWorker {
         }
         //System.out.println(">"+s);
 
-        if (s.equals("EXPL")) {
+        //if (s.equals("EXPL")) {
+        if (pp.getOr() == PosPacket.ORIENTATION_EXPLODED) {
             init();
         }
     }
@@ -67,8 +71,11 @@ class WSWorker {
                 (b1y+BASE_HEIGHT >= b2y) && (b2y+BASE_HEIGHT >= b1y));
 
 
-        WebSocketPacket p1 = new RawPacket("INIT:"+b1x+":"+b1y+":"+b2x+":"+b2y);
-        WebSocketPacket p2 = new RawPacket("INIT:"+b2x+":"+b2y+":"+b1x+":"+b1y);
+        InitResponsePacket rp1 = new InitResponsePacket(b1x, b1y, b2x, b2y);
+        InitResponsePacket rp2 = new InitResponsePacket(b2x, b2y, b1x, b1y);
+        Gson g = new Gson();
+        WebSocketPacket p1 = new RawPacket(g.toJson(rp1));
+        WebSocketPacket p2 = new RawPacket(g.toJson(rp2));
         first.sendPacket(p1);
         second.sendPacket(p2);
     }
