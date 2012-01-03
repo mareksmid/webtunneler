@@ -4,13 +4,16 @@
  */
 package cz.mareksmid.webtunneler.server2.json;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  *
  * @author marek
  */
-public class InitResponsePacket {
+public class ScenePacket {
     
-    public InitResponsePacket(int bx, int by, int ebx, int eby) {
+    public ScenePacket(int bx, int by, int ebx, int eby) {
         this.bx = bx;
         this.by = by;
         this.ebx = ebx;
@@ -20,6 +23,9 @@ public class InitResponsePacket {
     private String cmd = "INIT";
     private int bx, by;
     private int ebx, eby;
+    
+    private Set<PolygonJS> stones;
+    
 
     public int getBx() {
         return bx;
@@ -60,6 +66,15 @@ public class InitResponsePacket {
     public void setCmd(String cmd) {
         this.cmd = cmd;
     }
+
+    public Set<PolygonJS> getStones() {
+        return stones;
+    }
+
+    public void setStones(Set<PolygonJS> stones) {
+        this.stones = stones;
+    }
+
     
     
 }

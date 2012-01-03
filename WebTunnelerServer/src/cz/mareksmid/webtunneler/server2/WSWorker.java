@@ -6,7 +6,7 @@
 package cz.mareksmid.webtunneler.server2;
 
 import com.google.gson.Gson;
-import cz.mareksmid.webtunneler.server2.json.InitResponsePacket;
+import cz.mareksmid.webtunneler.server2.json.ScenePacket;
 import cz.mareksmid.webtunneler.server2.json.PosPacket;
 import org.jwebsocket.api.WebSocketConnector;
 import org.jwebsocket.api.WebSocketPacket;
@@ -17,10 +17,6 @@ import org.jwebsocket.kit.RawPacket;
  * @author marek
  */
 class WSWorker {
-    public static final int ARENA_WIDTH = 1600;
-    public static final int ARENA_HEIGHT = 1200;
-    public static final int BASE_WIDTH = 120;
-    public static final int BASE_HEIGHT = 120;
 
     private boolean assigned = false;
     private WebSocketConnector first, second = null;
@@ -61,21 +57,12 @@ class WSWorker {
     }
 
     private void init() {
-        int b1x, b1y, b2x, b2y;
-        b1x = (int) (Math.random() * (ARENA_WIDTH-BASE_WIDTH));
-        b1y = (int) (Math.random() * (ARENA_HEIGHT-BASE_HEIGHT));
-        do {
-            b2x = (int) (Math.random() * (ARENA_WIDTH-BASE_WIDTH));
-            b2y = (int) (Math.random() * (ARENA_HEIGHT-BASE_HEIGHT));
-        } while ((b1x+BASE_WIDTH >= b2x) && (b2x+BASE_WIDTH >= b1x) &&
-                (b1y+BASE_HEIGHT >= b2y) && (b2y+BASE_HEIGHT >= b1y));
 
+        ScenePacket[] scenes = new SceneGen().generate();
 
-        InitResponsePacket rp1 = new InitResponsePacket(b1x, b1y, b2x, b2y);
-        InitResponsePacket rp2 = new InitResponsePacket(b2x, b2y, b1x, b1y);
         Gson g = new Gson();
-        WebSocketPacket p1 = new RawPacket(g.toJson(rp1));
-        WebSocketPacket p2 = new RawPacket(g.toJson(rp2));
+        WebSocketPacket p1 = new RawPacket(g.toJson(scenes[0]));
+        WebSocketPacket p2 = new RawPacket(g.toJson(scenes[1]));
         first.sendPacket(p1);
         second.sendPacket(p2);
     }

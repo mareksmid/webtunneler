@@ -4,18 +4,16 @@
  */
 package cz.mareksmid.webtunneler.server2;
 
-import com.google.gson.Gson;
 import cz.mareksmid.webtunneler.server2.json.PolygonJS;
+import cz.mareksmid.webtunneler.server2.json.ScenePacket;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -26,6 +24,11 @@ import javax.swing.JPanel;
  */
 public class SceneGen extends JPanel {
     
+    public static final int ARENA_WIDTH = 1600;
+    public static final int ARENA_HEIGHT = 1200;
+    public static final int BASE_WIDTH = 120;
+    public static final int BASE_HEIGHT = 120;
+
     public static final int STONE_CNT = 20;
     
     public static void main(String args[]) {
@@ -33,7 +36,7 @@ public class SceneGen extends JPanel {
         
         SceneGen gen = new SceneGen(w, h);
         
-        System.out.println(">"+gen.toJSON());
+        //System.out.println(">"+gen.toJSON());
 
         JFrame frm = new JFrame("WebTunneler scene gen");
         frm.setSize(w, h);
@@ -42,13 +45,27 @@ public class SceneGen extends JPanel {
         frm.setVisible(true);
     }
     
+    private int b1x, b1y, b2x, b2y;
     private int width, height;
     private List<Polygon> stones;
+    
+    public SceneGen() {
+        this(ARENA_WIDTH, ARENA_HEIGHT);
+    }
     
     public SceneGen(int w, int h) {
         width = w;
         height = h;
         stones = new ArrayList<Polygon>();
+
+        
+        b1x = (int) (Math.random() * (ARENA_WIDTH-BASE_WIDTH));
+        b1y = (int) (Math.random() * (ARENA_HEIGHT-BASE_HEIGHT));
+        do {
+            b2x = (int) (Math.random() * (ARENA_WIDTH-BASE_WIDTH));
+            b2y = (int) (Math.random() * (ARENA_HEIGHT-BASE_HEIGHT));
+        } while ((b1x+BASE_WIDTH >= b2x) && (b2x+BASE_WIDTH >= b1x) &&
+                (b1y+BASE_HEIGHT >= b2y) && (b2y+BASE_HEIGHT >= b1y));
         
         for (int i = 0; i < STONE_CNT; i++) {
             Polygon s = null;
@@ -77,7 +94,22 @@ public class SceneGen extends JPanel {
             g2.draw(p);
         }
     }
+
     
+    public ScenePacket[] generate() {
+        ScenePacket[] scene = new ScenePacket[2];
+        scene[0] = new ScenePacket(b1x, b1y, b2x, b2y);
+        scene[1] = new ScenePacket(b2x, b2y, b1x, b1y);
+        
+        Set<PolygonJS> ss = new HashSet<PolygonJS>();
+        for (Polygon s : stones) {
+            ss.add(new PolygonJS(s));
+        }
+        scene[0].setStones(ss);
+        scene[1].setStones(ss);
+        
+        return scene;
+    }
     
     
     private Polygon generateStone() {
@@ -92,18 +124,5 @@ public class SceneGen extends JPanel {
         
         return p;
     }
-    
-    public String toJSON() {
-        Gson gs = new Gson();
-        Map<String,Object> map = new HashMap<String,Object>();
         
-        Set<PolygonJS> ss = new HashSet<PolygonJS>();
-        map.put("stones", ss);
-        for (Polygon s : stones) {
-            ss.add(new PolygonJS(s));
-        }
-        
-        return gs.toJson(map);
-    }
-    
 }
