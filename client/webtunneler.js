@@ -13,6 +13,7 @@ var shooting = false;
 var bullets = new Array();
 var bulletsFired = 0;
 //var exploded = false;
+var stones = null;
 
 var eorientation = -1;
 var etx = 0, ety = 0;
@@ -62,7 +63,8 @@ function processPacket(event) {
   //ss = event.data.split(':');
   //var data = eval('(' + event.data + ')');
   var data = JSON.parse(event.data);
-  //if (ss[0] == 'INIT') {
+  //alert(event.data);
+  //if (ss[0] == 'INIT') {  
   if (data.cmd == 'INIT') {
     initBoard(data);
     return;
@@ -73,10 +75,10 @@ function processPacket(event) {
     explode();
     return;
   }
-  eorientation = data.eor;
-  etx = data.etx;
-  ety = data.ety;
-  var enemyBulletsFired = data.ebf;
+  eorientation = data.or;
+  etx = data.x;
+  ety = data.y;
+  var enemyBulletsFired = data.b;
   for (var i = 0; i < enemyBulletsFired; i++) {
     enemyBullets.push(newBullet(etx, ety, eorientation));
   }
@@ -129,6 +131,7 @@ function initBoard(data) {
   health = MAX_HEALTH;
   energy = MAX_ENERGY;
 
+  stones = data.stones;
 }
 
 function updatePos() {

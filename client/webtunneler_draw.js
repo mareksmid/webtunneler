@@ -7,12 +7,24 @@ function draw() {
   ctx.fillText(""+orientation+" "+tx+" "+ty, 10, 435);
   ctx.fillText(""+eorientation+" "+etx+" "+ety, 10, 450);
   ctx.fillText(""+energy+" "+health+" "+shooting+" "+bullets, 10, 465);
- 
+  
   ax = tx - BOARD_WIDTH/2;
   if (ax < 0) {ax = 0;} else if (ax > ARENA_WIDTH-BOARD_WIDTH+1) {ax = ARENA_WIDTH-BOARD_WIDTH+1;}
   ay = ty - BOARD_HEIGHT/2;
   if (ay < 0) {ay = 0;} else if (ay > ARENA_HEIGHT-BOARD_HEIGHT+1) {ay = ARENA_HEIGHT-BOARD_HEIGHT+1;}
 
+  if (stones != null) {
+    ctx.fillStyle = '#404040';
+    for (var si in stones) {
+      var s = stones[si];
+      ctx.beginPath();
+      ctx.moveTo(s.points[0].x-ax, s.points[0].y-ay);
+      for (var i = 1; i < s.points.length-1; i++) {ctx.lineTo(s.points[i].x-ax, s.points[i].y-ay);}
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+  
   ctx.fillStyle = "#E0FFE0";
   ctx.fillRect(bx - ax, by - ay, BASE_WIDTH, BASE_HEIGHT);
 
