@@ -110,7 +110,7 @@ function moveBullet(b) {
 
 function shootBullets() {
   if (energy < BULLET_ENERGY) {return;}
-  bullets.push(newBullet(tx, ty, orientation));
+  bullets.push(newBullet(rx, ry, orientation));
   bulletsFired++;
   energy -= BULLET_ENERGY;
 }
@@ -127,16 +127,14 @@ function checkBullets() {
   for (var i in enemyBullets) {
     var b = enemyBullets[i];
     if (!moveBullet(b)) {if (beg) {enemyBullets.shift();}}
-    else if (collides(b, tx, ty)) {
+    else if (collides(b, rx, ry)) {
       if (beg) {enemyBullets.shift();}
       health -= BULLET_DAMAGE;
       if (health <= 0) {
 	  //resetPos();
 	  deaths++;
 	  //exploded = true;
-	  if (conn.readyState === 1) {
-	    conn.send("EXPL");
-	  }
+	  sendExpl();
 	  explode();
       }
     } else {beg = false;}

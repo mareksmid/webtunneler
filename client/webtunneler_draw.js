@@ -4,14 +4,21 @@ function draw() {
   ctx.fillRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
   ctx.fillStyle = "#00FF00";
   ctx.fillText(""+pressed, 10, 420);
-  ctx.fillText(""+orientation+" "+tx+" "+ty, 10, 435);
+  ctx.fillText(""+orientation+" "+tx+" "+ty+" / "+rx+" "+ry, 10, 435);
   ctx.fillText(""+eorientation+" "+etx+" "+ety, 10, 450);
   ctx.fillText(""+energy+" "+health+" "+shooting+" "+bullets, 10, 465);
   
-  ax = tx - BOARD_WIDTH/2;
+  ax = rx - BOARD_WIDTH/2;
   if (ax < 0) {ax = 0;} else if (ax > ARENA_WIDTH-BOARD_WIDTH+1) {ax = ARENA_WIDTH-BOARD_WIDTH+1;}
-  ay = ty - BOARD_HEIGHT/2;
+  ay = ry - BOARD_HEIGHT/2;
   if (ay < 0) {ay = 0;} else if (ay > ARENA_HEIGHT-BOARD_HEIGHT+1) {ay = ARENA_HEIGHT-BOARD_HEIGHT+1;}
+  
+  if (dirt != null) {
+    ctx.fillStyle = "#0000FF";
+    for (var x = 0; x < DIRT_X_CNT; x++) for (var y = 0; y < DIRT_Y_CNT; y++) {
+      if (dirt[x][y]) {ctx.fillRect(x*DIRT_W - ax, y*DIRT_H - ay, DIRT_W, DIRT_H);}
+    }
+  }
 
   if (stones != null) {
     ctx.fillStyle = '#404040';
@@ -36,7 +43,7 @@ function draw() {
   ctx.strokeRect(-ax, -ay, ARENA_WIDTH, ARENA_HEIGHT);
   ctx.lineWidth = 1;
 
-  ctx.translate(tx-ax, ty-ay);
+  ctx.translate(rx-ax, ry-ay);
   ctx.rotate(Math.PI * 2 * orientation / 8);
   ctx.drawImage(tankImg, -TANK_W2, -TANK_H2);
   ctx.setTransform(1, 0, 0, 1, 0, 0);

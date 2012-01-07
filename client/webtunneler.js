@@ -7,6 +7,7 @@ var orientation = 0;
 var tx = 0, ty = 0;
 var ax = 0, ay = 0;
 var bx = 0, by = 0;
+var rx = 0, ry = 0;
 var energy = MAX_ENERGY;
 var health = MAX_HEALTH;
 var shooting = false;
@@ -14,6 +15,7 @@ var bullets = new Array();
 var bulletsFired = 0;
 //var exploded = false;
 var stones = null;
+var dirt = null;
 
 var eorientation = -1;
 var etx = 0, ety = 0;
@@ -47,7 +49,7 @@ function openConnection() {
     conn.onopen = function () {
       alert('Socket open');
       var prefix = (window.location.href.indexOf('new') >= 0) ? 'NEW' : 'JOIN';
-      conn.send("{id: 1; cmd: "+prefix+"}");
+      sendInit(prefix);
     };
 
     conn.onmessage = processPacket;
@@ -65,22 +67,31 @@ function processPacket(event) {
   var data = JSON.parse(event.data);
   //alert(event.data);
   //if (ss[0] == 'INIT') {  
-  if (data.cmd == 'INIT') {
+  if (data.cmd == 'SCENE') {
     initBoard(data);
     return;
   }
   //if (ss[0] == 'EXPL') {
-  if (data.cmd == 'EXPL') {
+  //if (data.cmd == 'EXPL') {
+  if (data.eor == 99) {
     enemyDeaths++;
     explode();
     return;
   }
-  eorientation = data.or;
-  etx = data.x;
-  ety = data.y;
-  var enemyBulletsFired = data.b;
+  rx = data.rx;
+  ry = data.ry;
+
+  eorientation = data.eor;
+  etx = data.ex;
+  ety = data.ey;
+  var enemyBulletsFired = data.eb;
   for (var i = 0; i < enemyBulletsFired; i++) {
     enemyBullets.push(newBullet(etx, ety, eorientation));
+  }
+  
+  for (var di in data.dirtRemoved) {
+    var d = data.dirtRemoved[di];
+    dirt[d.x][d.y] = false;
   }
 }
 
@@ -112,7 +123,7 @@ function doTimer() {
 }
 
 function recharge() {
-  if ((tx >= bx) && (tx < bx+BASE_WIDTH) && (ty >= by) && (ty < by+BASE_HEIGHT)) {
+  if ((rx >= bx) && (rx < bx+BASE_WIDTH) && (ry >= by) && (ry < by+BASE_HEIGHT)) {
     if (health < MAX_HEALTH) {health += HEALTH_INC; if (health > MAX_HEALTH) {health = MAX_HEALTH;}}
     if (energy < MAX_ENERGY) {energy += ENERGY_INC; if (energy > MAX_ENERGY) {energy = MAX_ENERGY;}}
   }
@@ -122,8 +133,8 @@ function recharge() {
 function initBoard(data) {
   bx = data.bx;
   by = data.by;
-  tx = bx + BASE_WIDTH/2;
-  ty = by + BASE_HEIGHT/2;
+  tx = rx = bx + BASE_WIDTH/2;
+  ty = ry = by + BASE_HEIGHT/2;
 
   ebx = data.ebx;
   eby = data.eby;
@@ -132,6 +143,14 @@ function initBoard(data) {
   energy = MAX_ENERGY;
 
   stones = data.stones;
+
+  dirt = new Array();
+  for (var x = 0; x < DIRT_X_CNT; x++) {
+    dirt[x] = new Array();
+    for (var y = 0; y < DIRT_Y_CNT; y++) {
+      dirt[x][y] = true;
+    }
+  }
 }
 
 function updatePos() {
@@ -176,11 +195,21 @@ function updatePos() {
 }
 
 
+function sendInit(cmd) {
+  conn.send("{id: 1; cmd: "+cmd+"}");
+}
 
 function sendPos() {
   if (conn.readyState !== 1) {return;}
   conn.send("{or:"+orientation+";x:"+tx+";y:"+ty+";b:"+bulletsFired+"}");
   bulletsFired = 0;
+}
+
+function sendExpl() {
+  if (conn.readyState !== 1) {return;}
+  conn.send("{or:99;x:"+tx+";y:"+ty+";b:"+bulletsFired+"}");
+  bulletsFired = 0;
+  //conn.send("EXPL");
 }
 
 function keyDown(e) {
@@ -192,6 +221,7 @@ function keyDown(e) {
     shooting = true;
   }
 }
+
 function keyUp(e) {
   var c = e.keyCode;
   if ((c >= 37) && (c <= 40)) {
