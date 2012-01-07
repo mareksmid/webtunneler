@@ -20,7 +20,7 @@ public class ScenePacket {
         this.eby = eby;
     }
     
-    private String cmd = "INIT";
+    private String cmd = "SCENE";
     private int bx, by;
     private int ebx, eby;
     

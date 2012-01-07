@@ -17,25 +17,29 @@ import org.jwebsocket.kit.RawPacket;
  * @author marek
  */
 class WSWorker {
-
+    
     private boolean assigned = false;
     private WebSocketConnector first, second = null;
     private String id;
+    private Scene scene;
 
     public WSWorker(WebSocketConnector c, String id) {
         first = c;
         this.id = id;
+        scene = new Scene();
     }
 
     public void processPacket(PosPacket pp, WebSocketConnector c) {
         if (!assigned) {return;}
 
-        WebSocketPacket p = new RawPacket(new Gson().toJson(pp));
+        //WebSocketPacket p = new RawPacket(new Gson().toJson(pp));
 
         if (c.equals(first)) {
-            second.sendPacket(p);
+            //second.sendPacket(p);
+            first.sendPacket(new RawPacket(new Gson().toJson(scene.updateFirst(pp))));
         } else {
-            first.sendPacket(p);
+            //first.sendPacket(p);
+            second.sendPacket(new RawPacket(new Gson().toJson(scene.updateSecond(pp))));
         }
         //System.out.println(">"+s);
 
@@ -65,6 +69,7 @@ class WSWorker {
         WebSocketPacket p2 = new RawPacket(g.toJson(scenes[1]));
         first.sendPacket(p1);
         second.sendPacket(p2);
+        scene.init();
     }
 
 }
