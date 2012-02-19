@@ -14,7 +14,7 @@ function draw() {
   if (ay < 0) {ay = 0;} else if (ay > ARENA_HEIGHT-BOARD_HEIGHT+1) {ay = ARENA_HEIGHT-BOARD_HEIGHT+1;}
   
   if (dirt != null) {
-    ctx.fillStyle = "#0000FF";
+    ctx.fillStyle = "#666600";
     for (var x = 0; x < DIRT_X_CNT; x++) for (var y = 0; y < DIRT_Y_CNT; y++) {
       if (dirt[x][y]) {ctx.fillRect(x*DIRT_W - ax, y*DIRT_H - ay, DIRT_W, DIRT_H);}
     }
