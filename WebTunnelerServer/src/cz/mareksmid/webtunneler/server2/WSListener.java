@@ -6,7 +6,8 @@
 package cz.mareksmid.webtunneler.server2;
 
 import com.google.gson.Gson;
-import cz.mareksmid.webtunneler.server2.json.*;
+import cz.mareksmid.webtunneler.server2.json.InitPacket;
+import cz.mareksmid.webtunneler.server2.json.PosPacket;
 import java.util.HashMap;
 import java.util.Map;
 import org.jwebsocket.api.WebSocketConnector;

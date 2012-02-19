@@ -24,10 +24,6 @@ import javax.swing.JPanel;
  */
 public class SceneGen extends JPanel {
     
-    public static final int ARENA_WIDTH = 1600;
-    public static final int ARENA_HEIGHT = 1200;
-    public static final int BASE_WIDTH = 120;
-    public static final int BASE_HEIGHT = 120;
 
     public static final int STONE_CNT = 20;
     
@@ -50,7 +46,7 @@ public class SceneGen extends JPanel {
     private List<Polygon> stones;
     
     public SceneGen() {
-        this(ARENA_WIDTH, ARENA_HEIGHT);
+        this(Scene.ARENA_WIDTH, Scene.ARENA_HEIGHT);
     }
     
     public SceneGen(int w, int h) {
@@ -59,13 +55,13 @@ public class SceneGen extends JPanel {
         stones = new ArrayList<Polygon>();
 
         
-        b1x = (int) (Math.random() * (ARENA_WIDTH-BASE_WIDTH));
-        b1y = (int) (Math.random() * (ARENA_HEIGHT-BASE_HEIGHT));
+        b1x = (int) (Math.random() * (Scene.ARENA_WIDTH-Scene.BASE_WIDTH) / Scene.DIRT_W) * Scene.DIRT_W;
+        b1y = (int) (Math.random() * (Scene.ARENA_HEIGHT-Scene.BASE_HEIGHT) / Scene.DIRT_H) * Scene.DIRT_H;
         do {
-            b2x = (int) (Math.random() * (ARENA_WIDTH-BASE_WIDTH));
-            b2y = (int) (Math.random() * (ARENA_HEIGHT-BASE_HEIGHT));
-        } while ((b1x+BASE_WIDTH >= b2x) && (b2x+BASE_WIDTH >= b1x) &&
-                (b1y+BASE_HEIGHT >= b2y) && (b2y+BASE_HEIGHT >= b1y));
+            b2x = (int) (Math.random() * (Scene.ARENA_WIDTH-Scene.BASE_WIDTH) / Scene.DIRT_W) * Scene.DIRT_W;
+            b2y = (int) (Math.random() * (Scene.ARENA_HEIGHT-Scene.BASE_HEIGHT) / Scene.DIRT_H) * Scene.DIRT_H;
+        } while ((b1x+Scene.BASE_WIDTH >= b2x) && (b2x+Scene.BASE_WIDTH >= b1x) &&
+                (b1y+Scene.BASE_HEIGHT >= b2y) && (b2y+Scene.BASE_HEIGHT >= b1y));
         
         for (int i = 0; i < STONE_CNT; i++) {
             Polygon s = null;
@@ -96,7 +92,7 @@ public class SceneGen extends JPanel {
     }
 
     
-    public ScenePacket[] generate() {
+    public ScenePacket[] generatePackets() {
         ScenePacket[] scene = new ScenePacket[2];
         scene[0] = new ScenePacket(b1x, b1y, b2x, b2y);
         scene[1] = new ScenePacket(b2x, b2y, b1x, b1y);
@@ -109,6 +105,10 @@ public class SceneGen extends JPanel {
         scene[1].setStones(ss);
         
         return scene;
+    }
+    
+    public Scene generateScene() {
+        return new Scene(b1x, b1y, b2x, b2y, stones);
     }
     
     

@@ -26,7 +26,6 @@ class WSWorker {
     public WSWorker(WebSocketConnector c, String id) {
         first = c;
         this.id = id;
-        scene = new Scene();
     }
 
     public void processPacket(PosPacket pp, WebSocketConnector c) {
@@ -62,13 +61,15 @@ class WSWorker {
 
     private void init() {
 
-        ScenePacket[] scenes = new SceneGen().generate();
+        SceneGen sg = new SceneGen();
+        ScenePacket[] scenes = sg.generatePackets();
 
         Gson g = new Gson();
         WebSocketPacket p1 = new RawPacket(g.toJson(scenes[0]));
         WebSocketPacket p2 = new RawPacket(g.toJson(scenes[1]));
         first.sendPacket(p1);
         second.sendPacket(p2);
+        scene = sg.generateScene();
         scene.init();
     }
 
