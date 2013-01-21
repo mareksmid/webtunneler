@@ -1,0 +1,109 @@
+
+.ui-widget, .ui-widget .ui-widget {
+    font-size: 90%;
+}
+
+/*.ui-button-text {
+    font-size: 90%;
+}*/
+
+.fieldNum {
+    font-size: 120%;
+    color: #E69700; /*red;*/
+}
+
+.fieldLabel {
+    font-size: 110%;
+    color: #0d589a; /*#1484E6; blue;*/
+}
+
+.fieldDesc {
+    font-size: 90%;
+    color: #0d589a; /*#1484E6; green;*/
+}
+
+/*#left {
+    float: left;
+    background-color: #ece3a5;
+    padding: 5px;
+    width: 150px;
+    font-weight: bold;
+    text-decoration: none;
+}*/
+
+.menuButton {
+    /*width: 120px !important;*/
+    /*margin: 0px !important;*/
+}
+
+
+#top {
+    /*position: relative;
+    background-color: #036fab;
+    color: white;
+    padding: 5px;
+    margin: 0px 0px 10px 0px;
+    text-transform: uppercase;*/
+    text-align: center;
+}
+
+#bottom {
+    /*position: relative;
+    background-color: #c2dfef;
+    padding: 5px;
+    margin: 10px 0px 0px 0px;*/
+    text-align: center;
+}
+
+#content {
+    /*min-height: 300px;
+    background-color: #dddddd;
+    padding: 5px;
+    margin-left: 130px;*/
+    /*padding-left: 12px;*/
+}
+
+.ui-panel {
+    margin-bottom: 10px;
+}
+
+.fieldInputPanel {
+    width: 100%;
+    display: block;
+}
+
+.fieldInput {
+    width: 92% !important;
+}
+
+.fieldPanel .ui-layout-container {
+    border: 0 !important;
+}
+
+.fieldPanel .ui-layout-unit {
+    border: 0 !important;
+}
+
+.deviceconfignameheader {
+    color: blue;
+}
+
+.oviewImage {
+    margin-right: 20px;
+    /*margin-bottom: 8px;*/
+}
+
+.settImage {
+    margin-left: 20px;
+    /*margin-bottom: 8px;*/
+}
+
+.cfgImage {
+    margin-bottom: 10px;
+    margin-right: 20px;
+}
+
+.devSelectMenu {
+    top: 8px;
+    min-width: 100px;
+}
