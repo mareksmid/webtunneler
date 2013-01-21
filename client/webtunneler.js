@@ -1,7 +1,7 @@
 
 var conn = { };
-var board = document.getElementById('board');
-var ctx = board.getContext('2d');
+var board;
+var ctx;
 
 var orientation = 0;
 var tx = 0, ty = 0;
@@ -29,13 +29,26 @@ var pressed = 0;
 var timer = null;
 var shootCtr = 0;
 
-var tankImg = new Image(), enemyTankImg = new Image();
+var tankImg, enemyTankImg;
 //tankImg.src= 'file:///home/marek/work/webtunneler/tank.png';
-tankImg.src= 'http://localhost/wt/img/tank.png';
-enemyTankImg.src= 'http://localhost/wt/img/enemytank.png';
-var explAudio = document.getElementById('expl');
+var explAudio;
 
 
+function init() {
+  board =  document.getElementById('board');
+  ctx = board.getContext('2d');
+  tankImg = new Image();
+  enemyTankImg = new Image();
+  tankImg.src= 'http://localhost/wt/img/tank.png';
+  enemyTankImg.src= 'http://localhost/wt/img/enemytank.png';
+  explAudio = document.getElementById('expl');
+
+  if (window.WebSocket === undefined) {
+    alert('Sockets not supported');
+  } else {
+    openConnection();
+  }
+}
 
 function openConnection() {
   if (conn.readyState === undefined || conn.readyState > 1) {
@@ -45,11 +58,14 @@ function openConnection() {
     //conn = new WebSocket('ws://localhost:8787', 'custom/text');
     //conn = new WebSocket('ws://localhost:8787/?;prot=custom');
     //conn = new WebSocket('ws://localhost:8787/?;prot=text');
-    conn = new WebSocket('ws://localhost:8787/?;subprot=custom/text');
+    //conn = new WebSocket('ws://localhost:8787/?;subprot=custom/text');
+    //conn = new WebSocket('ws://localhost:8787/');//, 'custom/text');
+    conn = new WebSocket('ws://localhost:8080/wts/ws');
     conn.onopen = function () {
       alert('Socket open');
       var prefix = (window.location.href.indexOf('new') >= 0) ? 'NEW' : 'JOIN';
       sendInit(prefix);
+      doTimer();
     };
 
     conn.onmessage = processPacket;
@@ -94,14 +110,6 @@ function processPacket(event) {
     dirt[d.x][d.y] = false;
   }
 }
-
-if (window.WebSocket === undefined) {
-  alert('Sockets not supported');
-} else {
-  openConnection();
-  doTimer();
-}
-
 
 function doTimer() {
   timer = setTimeout("doTimer()", TIMER_INT);
