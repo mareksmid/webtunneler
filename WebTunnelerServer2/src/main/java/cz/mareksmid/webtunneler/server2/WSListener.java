@@ -12,7 +12,9 @@ import org.glassfish.websocket.api.annotations.*;
 import org.glassfish.websocket.platform.WebSocketWrapper;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.websocket.*;
 import javax.websocket.WebSocketClose;
@@ -26,42 +28,34 @@ import javax.websocket.server.WebSocketEndpoint;
  *
  * @author marek
  */
-@WebSocketEndpoint(value="/ows", configuration = DefaultServerConfiguration.class)
-@WebSocket(path = "/ws")
+@WebSocketEndpoint(value="/owts", configuration = DefaultServerConfiguration.class)
+@WebSocket(path = "/wts")
 public class WSListener {
 
     public static final String INIT_NEW = "NEW";
     public static final String INIT_JOIN = "JOIN";
 
-    Map<String,WSWorker> workers;
+    Map<Long,WSWorker> workers;
     Map<String, WSWorker> workersById;
 
+    Set<Long> firsts = new HashSet<Long>();
+
     public WSListener() {
-        workers = new HashMap<String, WSWorker>();
+        workers = new HashMap<Long, WSWorker>();
         workersById = new HashMap<String, WSWorker>();
         System.out.println("init");
     }
 
-    @WebSocketOpen
-    public void processOpened(Session session, EndpointConfiguration cfg) {
-        System.out.println("o opened: "+session+" - "+cfg);
-    }
-
-    @WebSocketMessage
-    public void processPacket(String message, Session session) {
-        System.out.println("o process packet: "+message+" - "+session);
-    }
-
     @org.glassfish.websocket.api.annotations.WebSocketMessage
     public void processPacket(String message, WebSocketWrapper wsw) {
+        Long c = wsw.getConversation().getConversationID();
         //System.out.println("packet: "+message+" - "+wsw+" - "+wsw.getConversation().getConversationID());
-        System.out.println(""+wsw.getConversation().getConversationID()+":"+message);
+        if (!firsts.contains(c)) {
+        System.out.println(""+c+":"+message);
+            firsts.add(c);
+        }
 
-        //String s = wsp.getString();
         String s = message;
-        //WebSocketConnector c = wsse.getConnector();
-        //WSWorker w = workers.get(c);
-        String c = ""+wsw.getConversation().getConversationID();
         WSWorker w = workers.get(c);
 
         Gson g = new Gson();
@@ -69,12 +63,12 @@ public class WSListener {
         if (w == null) {
             InitPacket i = g.fromJson(s, InitPacket.class);
 
-            if (i.getCmd().equals(INIT_NEW)) {
+            if (INIT_NEW.equals(i.getCmd())) {
                 System.out.println("new worker for "+i.getId());
                 w = new WSWorker(wsw, i.getId());
                 workersById.put(i.getId(), w);
 
-            } else if (i.getCmd().equals(INIT_JOIN)) {
+            } else if (INIT_JOIN.equals(i.getCmd())) {
                 w = workersById.get(i.getId());
                 if (w == null) {
                     System.err.println("Worker for second does not exist: "+i.getId());
@@ -96,16 +90,6 @@ public class WSListener {
         w.processPacket(p, wsw);
     }
 
-    @WebSocketClose
-    public void processClosed(Session session) {
-        System.out.println("o closed: "+session);
-    }
-
-
-    @WebSocketError
-    public void processError(Session session, Throwable error) {
-        System.out.println("o error: "+error+" - "+session);
-    }
 
     @org.glassfish.websocket.api.annotations.WebSocketOpen
     public void processOpen(WebSocketWrapper wsw) {
@@ -119,6 +103,26 @@ public class WSListener {
     public void processError(Exception ex, WebSocketWrapper wsw) {
         System.out.println("error: "+wsw);
         ex.printStackTrace();
+    }
+
+
+
+    @WebSocketOpen
+    public void processOpened(Session session, EndpointConfiguration cfg) {
+        System.out.println("o opened: "+session+" - "+cfg);
+    }
+
+    @WebSocketMessage
+    public void processPacket(String message, Session session) {
+        System.out.println("o process packet: "+message+" - "+session);
+    }
+    @WebSocketClose
+    public void processClosed(Session session) {
+        System.out.println("o closed: "+session);
+    }
+    @WebSocketError
+    public void processError(Session session, Throwable error) {
+        System.out.println("o error: "+error+" - "+session);
     }
 
 }

@@ -30,7 +30,6 @@ var timer = null;
 var shootCtr = 0;
 
 var tankImg, enemyTankImg;
-//tankImg.src= 'file:///home/marek/work/webtunneler/tank.png';
 var explAudio;
 
 
@@ -39,8 +38,8 @@ function init() {
   ctx = board.getContext('2d');
   tankImg = new Image();
   enemyTankImg = new Image();
-  tankImg.src= 'http://localhost/wt/img/tank.png';
-  enemyTankImg.src= 'http://localhost/wt/img/enemytank.png';
+  tankImg.src= 'http://malina.felk.cvut.cz:8080/wt/img/tank.png';
+  enemyTankImg.src= 'http://malina.felk.cvut.cz:8080/wt/img/enemytank.png';
   explAudio = document.getElementById('expl');
 
   if (window.WebSocket === undefined) {
@@ -60,11 +59,12 @@ function openConnection() {
     //conn = new WebSocket('ws://localhost:8787/?;prot=text');
     //conn = new WebSocket('ws://localhost:8787/?;subprot=custom/text');
     //conn = new WebSocket('ws://localhost:8787/');//, 'custom/text');
-    conn = new WebSocket('ws://localhost:8080/websockets/ws');
+    conn = new WebSocket('ws://malina.felk.cvut.cz:8080/websockets/wts');
     conn.onopen = function () {
       alert('Socket open');
-      var prefix = (window.location.href.indexOf('new') >= 0) ? 'NEW' : 'JOIN';
-      sendInit(prefix);
+      //var cmd = (window.location.href.indexOf('new') >= 0) ? 'NEW' : 'JOIN';
+      var cmd = newGame ? 'NEW' : 'JOIN';
+      sendInit(gameId, cmd);
       doTimer();
     };
 
@@ -112,6 +112,7 @@ function processPacket(event) {
 }
 
 function doTimer() {
+  //alert('doTimer')
   timer = setTimeout("doTimer()", TIMER_INT);
   updatePos();
   recharge();
@@ -203,10 +204,11 @@ function updatePos() {
 }
 
 
-function sendInit(cmd) {
-    alert('sending init');
-  conn.send("{id: 1; cmd: "+cmd+"}");
-    alert('sent init');
+function sendInit(id, cmd) {
+    var s = "{id: "+id+"; cmd: '"+cmd+"'}";
+    //alert('sending init: '+s);
+    var res = conn.send(s);
+    //alert('sent init: '+res);
 }
 
 function sendPos() {
