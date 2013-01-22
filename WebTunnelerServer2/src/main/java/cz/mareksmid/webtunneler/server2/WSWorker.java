@@ -8,6 +8,7 @@ package cz.mareksmid.webtunneler.server2;
 import com.google.gson.Gson;
 import cz.mareksmid.webtunneler.server2.json.ScenePacket;
 import cz.mareksmid.webtunneler.server2.json.PosPacket;
+import org.glassfish.websocket.platform.WebSocketWrapper;
 
 /**
  *
@@ -16,34 +17,35 @@ import cz.mareksmid.webtunneler.server2.json.PosPacket;
 class WSWorker {
     
     private boolean assigned = false;
-    private String first, second = null;
+    private WebSocketWrapper first, second = null;
     private String id;
     private Scene scene;
 
-    public WSWorker(String c, String id) {
+    public WSWorker(WebSocketWrapper c, String id) {
         first = c;
         this.id = id;
     }
 
-    public void processPacket(PosPacket pp, String c) {
+    public void processPacket(PosPacket pp, WebSocketWrapper c) {
         if (!assigned) {return;}
 
-        //WebSocketPacket p = new RawPacket(new Gson().toJson(pp));
-
-        if (c.equals(first)) {
-            //first.sendPacket(new RawPacket(new Gson().toJson(scene.updateFirst(pp))));
-        } else {
-            //second.sendPacket(new RawPacket(new Gson().toJson(scene.updateSecond(pp))));
+        try {
+            if (c.equals(first)) {
+                first.sendMessage(new Gson().toJson(scene.updateFirst(pp)));
+            } else {
+                second.sendMessage(new Gson().toJson(scene.updateSecond(pp)));
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
         //System.out.println(">"+s);
 
-        //if (s.equals("EXPL")) {
         if (pp.getOr() == PosPacket.ORIENTATION_EXPLODED) {
             init();
         }
     }
 
-    public void setSecond(String c) {
+    public void setSecond(WebSocketWrapper c) {
         if (assigned) {throw new RuntimeException("Already assigned");}
         second = c;
         assigned = true;
@@ -60,10 +62,12 @@ class WSWorker {
         ScenePacket[] scenes = sg.generatePackets();
 
         Gson g = new Gson();
-        //WebSocketPacket p1 = new RawPacket(g.toJson(scenes[0]));
-        //WebSocketPacket p2 = new RawPacket(g.toJson(scenes[1]));
-        //first.sendPacket(p1);
-        //second.sendPacket(p2);
+        try {
+            first.sendMessage(g.toJson(scenes[0]));
+            second.sendMessage(g.toJson(scenes[1]));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
         scene = sg.generateScene();
         scene.init();
     }

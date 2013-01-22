@@ -204,7 +204,9 @@ function updatePos() {
 
 
 function sendInit(cmd) {
+    alert('sending init');
   conn.send("{id: 1; cmd: "+cmd+"}");
+    alert('sent init');
 }
 
 function sendPos() {
