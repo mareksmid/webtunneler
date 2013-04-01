@@ -16,19 +16,19 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.websocket.*;
+/*import javax.websocket.*;
 import javax.websocket.WebSocketClose;
 import javax.websocket.WebSocketError;
 import javax.websocket.WebSocketMessage;
 import javax.websocket.WebSocketOpen;
 import javax.websocket.server.DefaultServerConfiguration;
-import javax.websocket.server.WebSocketEndpoint;
+import javax.websocket.server.WebSocketEndpoint;*/
 
 /**
  *
  * @author marek
  */
-@WebSocketEndpoint(value="/owts", configuration = DefaultServerConfiguration.class)
+//@WebSocketEndpoint(value="/owts", configuration = DefaultServerConfiguration.class)
 @WebSocket(path = "/wts")
 public class WSListener {
 
@@ -107,7 +107,7 @@ public class WSListener {
 
 
 
-    @WebSocketOpen
+    /*@WebSocketOpen
     public void processOpened(Session session, EndpointConfiguration cfg) {
         System.out.println("o opened: "+session+" - "+cfg);
     }
@@ -123,6 +123,6 @@ public class WSListener {
     @WebSocketError
     public void processError(Session session, Throwable error) {
         System.out.println("o error: "+error+" - "+session);
-    }
+    }*/
 
 }

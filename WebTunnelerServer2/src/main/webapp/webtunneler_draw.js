@@ -32,12 +32,9 @@ function draw() {
     }
   }
   
-  ctx.fillStyle = "#E0FFE0";
-  ctx.fillRect(bx - ax, by - ay, BASE_WIDTH, BASE_HEIGHT);
+  drawBase("#E0FFE0", bx, by);
+  drawBase("#FFE0E0", ebx, eby);
 
-  ctx.fillStyle = "#FFE0E0";
-  ctx.fillRect(ebx - ax, eby - ay, BASE_WIDTH, BASE_HEIGHT);
-  
   ctx.lineWidth = 4;
   ctx.strokeStyle = "#0000FF";
   ctx.strokeRect(-ax, -ay, ARENA_WIDTH, ARENA_HEIGHT);
@@ -86,4 +83,25 @@ function draw() {
     ctx.fillText(""+deaths, sx, SCORE_T_OFFS);
   //}
   
+}
+
+function drawBase(bcl, bx, by) {
+    ctx.fillStyle = bcl;
+    ctx.fillRect(bx - ax, by - ay, BASE_WIDTH, BASE_HEIGHT);
+
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "#FF0000";
+    ctx.beginPath();
+    ctx.moveTo(bx - ax + (BASE_WIDTH-BASE_ENTRANCE)/2, by - ay);
+    ctx.lineTo(bx - ax, by - ay);
+    ctx.lineTo(bx - ax, by - ay + BASE_HEIGHT);
+    ctx.lineTo(bx - ax + (BASE_WIDTH-BASE_ENTRANCE)/2, by - ay + BASE_HEIGHT);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(bx - ax + BASE_WIDTH - (BASE_WIDTH-BASE_ENTRANCE)/2, by - ay);
+    ctx.lineTo(bx - ax + BASE_WIDTH, by - ay);
+    ctx.lineTo(bx - ax + BASE_WIDTH, by - ay + BASE_HEIGHT);
+    ctx.lineTo(bx - ax + BASE_WIDTH - (BASE_WIDTH-BASE_ENTRANCE)/2, by - ay + BASE_HEIGHT);
+    ctx.stroke();
 }

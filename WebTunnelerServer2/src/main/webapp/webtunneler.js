@@ -32,14 +32,17 @@ var shootCtr = 0;
 var tankImg, enemyTankImg;
 var explAudio;
 
+//var SERVER = 'malina.felk.cvut.cz:8080';
+var SERVER = 'localhost:8080';
+
 
 function init() {
   board =  document.getElementById('board');
   ctx = board.getContext('2d');
   tankImg = new Image();
   enemyTankImg = new Image();
-  tankImg.src= 'http://malina.felk.cvut.cz:8080/wt/img/tank.png';
-  enemyTankImg.src= 'http://malina.felk.cvut.cz:8080/wt/img/enemytank.png';
+  tankImg.src= 'http://'+SERVER+'/wt/img/tank.png';
+  enemyTankImg.src= 'http://'+SERVER+'/wt/img/enemytank.png';
   explAudio = document.getElementById('expl');
 
   if (window.WebSocket === undefined) {
@@ -59,9 +62,9 @@ function openConnection() {
     //conn = new WebSocket('ws://localhost:8787/?;prot=text');
     //conn = new WebSocket('ws://localhost:8787/?;subprot=custom/text');
     //conn = new WebSocket('ws://localhost:8787/');//, 'custom/text');
-    conn = new WebSocket('ws://malina.felk.cvut.cz:8080/websockets/wts');
+    conn = new WebSocket('ws://'+SERVER+'/websockets/wts');
     conn.onopen = function () {
-      alert('Socket open');
+      console.log('Socket open');
       //var cmd = (window.location.href.indexOf('new') >= 0) ? 'NEW' : 'JOIN';
       var cmd = newGame ? 'NEW' : 'JOIN';
       sendInit(gameId, cmd);
@@ -71,7 +74,7 @@ function openConnection() {
     conn.onmessage = processPacket;
   
     conn.onclose = function (event) {
-      alert('Socket closed');
+      console.log('Socket closed');
     };
   }
 }
@@ -94,8 +97,8 @@ function processPacket(event) {
     explode();
     return;
   }
-  rx = data.rx;
-  ry = data.ry;
+  tx = rx = data.rx;
+  ty = ry = data.ry;
 
   eorientation = data.eor;
   etx = data.ex;
@@ -206,9 +209,9 @@ function updatePos() {
 
 function sendInit(id, cmd) {
     var s = "{id: "+id+"; cmd: '"+cmd+"'}";
-    //alert('sending init: '+s);
+    console.log('sending init: '+s);
     var res = conn.send(s);
-    //alert('sent init: '+res);
+    console.log('sent init: '+res);
 }
 
 function sendPos() {

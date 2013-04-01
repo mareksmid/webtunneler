@@ -4,13 +4,15 @@
  */
 package cz.mareksmid.webtunneler.server2;
 
+import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 import cz.mareksmid.webtunneler.server2.json.PolygonJS;
 import cz.mareksmid.webtunneler.server2.json.ScenePacket;
-import java.awt.Color;
+/*import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
-import java.awt.geom.Rectangle2D;
+import java.awt.geom.Rectangle2D;*/
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -68,10 +70,10 @@ public class SceneGen extends JPanel {
             boolean intersects = false;
             do {
                 s = generateStone();
-                Rectangle2D b = s.getBounds2D();
+                //Rectangle2D b = s.getBounds2D();
                 intersects = false;
                 for (Polygon os : stones) {
-                    if (os.intersects(b)) {
+                    if (os.intersects(s)) {
                         intersects = true;
                         break;
                     }
@@ -81,7 +83,7 @@ public class SceneGen extends JPanel {
         }
     }
 
-    @Override
+    /*@Override
     protected void paintComponent(Graphics g) {
         Graphics2D g2 = (Graphics2D) g;
         
@@ -89,7 +91,7 @@ public class SceneGen extends JPanel {
         for (Polygon p : stones) {
             g2.draw(p);
         }
-    }
+    }*/
 
     
     public ScenePacket[] generatePackets() {
@@ -113,16 +115,17 @@ public class SceneGen extends JPanel {
     
     
     private Polygon generateStone() {
-        Polygon p = new Polygon();
         int x = (int) (width * Math.random());
         int y = (int) (height * Math.random());
-        
+
+        List<Coordinate> points = new ArrayList<Coordinate>();
         for (double ang = 0; ang < Math.PI*2; ang += Math.PI*2/6*Math.random()) {
             double r = Math.random() * 20 + 30;
-            p.addPoint((int) (x  + Math.cos(ang)*r), (int) (y + Math.sin(ang)*r));
+            points.add(new Coordinate(x  + Math.cos(ang)*r, y + Math.sin(ang)*r));
         }
-        
-        return p;
+        points.add(points.get(0));
+
+        return Scene.createPolygon(points.toArray(new Coordinate[points.size()]));
     }
         
 }

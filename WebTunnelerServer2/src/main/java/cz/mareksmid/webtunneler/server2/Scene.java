@@ -4,14 +4,20 @@
  */
 package cz.mareksmid.webtunneler.server2;
 
+import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
+import com.vividsolutions.jts.geom.util.AffineTransformation;
 import cz.mareksmid.webtunneler.server2.json.PosPacket;
 import cz.mareksmid.webtunneler.server2.json.UpdatePacket;
 import cz.mareksmid.webtunneler.server2.model.Bullet;
+
+//import java.awt.*;
 import java.awt.Point;
-import java.awt.Polygon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.*;
+import java.util.List;
 import javax.swing.Timer;
 
 /**
@@ -19,24 +25,22 @@ import javax.swing.Timer;
  * @author marek
  */
 public class Scene implements ActionListener {
-    
-    public static final int BULLET_INTERVAL = 40;
 
-    public static final int ARENA_WIDTH = 1600;
-    public static final int ARENA_HEIGHT = 1200;
-    public static final int BASE_WIDTH = 120;
-    public static final int BASE_HEIGHT = 120;
+    public static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
 
-    public static final int TANK_W2 = 16;
-    public static final int TANK_H2 = 21;
-    public static final int TANK_R = 21;
-    public static final int TANK_DIAG = (int) Math.round(Math.sqrt(2)/2*TANK_H2);
-    
-    public static final int DIRT_W = 10;
-    public static final int DIRT_H = 10;
-    public static final int DIRT_X_CNT = ARENA_WIDTH / DIRT_W;
-    public static final int DIRT_Y_CNT = ARENA_HEIGHT / DIRT_H;
-    
+    /*private static Polygon rotate(Polygon poly, double ang) {
+        Matrix m = new Matrix(ang);
+        int[] xp = new int[poly.npoints];
+        int[] yp = new int[poly.npoints];
+        for (int i = 0; i < poly.npoints; i++) {
+            double[] v = m.multiply(new double[] {poly.xpoints[i], poly.ypoints[i]});
+            xp[i] = (int) Math.round(v[0]);
+            yp[i] = (int) Math.round(v[1]);
+        }
+        return new Polygon(xp, yp, xp.length);
+    }*/
+
+
     private int rx1, ry1, rx2, ry2;
 
     private int b1x, b1y, b2x, b2y;
@@ -45,11 +49,11 @@ public class Scene implements ActionListener {
     private int or1, or2;
     private int b1, b2;
     
-    private final boolean[][] dirt = new boolean[DIRT_X_CNT][DIRT_Y_CNT];
+    private final boolean[][] dirt = new boolean[Const.DIRT_X_CNT][Const.DIRT_Y_CNT];
     private final Set<Point> dirtUpdateFirst, dirtUpdateSecond;
     private final Set<Bullet> bullets;
     
-    private final Timer bulletTimer = new Timer(BULLET_INTERVAL, this);
+    private final Timer bulletTimer = new Timer(Const.BULLET_INTERVAL, this);
     
     public Scene(int b1x, int b1y, int b2x, int b2y, List<Polygon> stones) {
         this.b1x = b1x;
@@ -65,47 +69,105 @@ public class Scene implements ActionListener {
         
 
     public UpdatePacket updateFirst(PosPacket p) {
-        rx1 = p.getX();
-        ry1 = p.getY();
+        int x = p.getX();
+        int y= p.getY();
         or1 = p.getOr();
         b1 = p.getB();
-        int x = rx1, y = ry1;
+        int[] xy = {x, y};
+        checkCollisions(xy, true);
+        rx1 = xy[0]; ry1 = xy[1];
         for (int b = 0; b < b1; b++) {
-            bullets.add(createBullet(or1, x, y));
+            bullets.add(createBullet(or1, rx1, ry1));
         }
         UpdatePacket up;
         synchronized(dirtUpdateFirst) {
-            up = new UpdatePacket(x, y, or2, rx2, ry2, b2, new HashSet<Point>(dirtUpdateFirst));
+            up = new UpdatePacket(rx1, ry1, or2, rx2, ry2, b2, new HashSet<Point>(dirtUpdateFirst));
             dirtUpdateFirst.clear();
         }
         return up;
     }
-    
+
+    private void checkCollisions(int[] xy, boolean first) {
+        if (first) {if (or1 == PosPacket.ORIENTATION_EXPLODED) {return;}}
+        else {if (or2 == PosPacket.ORIENTATION_EXPLODED) {return;}}
+
+        boolean c = false;
+        Polygon t, et;
+        if (first) {t = Const.TANK_POLYS[or1]; et = Const.TANK_POLYS[or2];}
+        else {t = Const.TANK_POLYS[or2]; et = Const.TANK_POLYS[or1];}
+        //t = clone(t); et = clone(et);
+        AffineTransformation tr = AffineTransformation.translationInstance(xy[0], xy[1]);
+        AffineTransformation etr;
+        //t.translate(xy[0], xy[1]);
+        t = (Polygon) tr.transform(t);
+        /*if (first) {et.translate(rx2, ry2);}
+        else {et.translate(rx1, ry1);}*/
+        if (first) {etr = AffineTransformation.translationInstance(rx2, ry2);}
+        else {etr = AffineTransformation.translationInstance(rx1, rx2);}
+        et = (Polygon) etr.transform(et);
+
+        if (!c) for (Polygon s : stones) {
+            if (t.intersects(s)) {
+                c = true;
+                break;
+            }
+        }
+
+        if (!c) {
+            if (t.intersects(et)) {
+                c = true;
+            }
+        }
+
+
+        if (!c) {
+            if (collidesBaseWalls(t, b1x, b1y)) {c = true;}
+            else if (collidesBaseWalls(t, b2x, b2y)) {c = true;}
+        }
+        //private int b1x, b1y, b2x, b2y;
+
+        if (c) {
+            if (first) {
+                xy[0] = rx1; xy[1] = ry1;
+            } else {
+                xy[0] = rx2; xy[1] = ry2;
+            }
+        }
+
+    }
+
+    /*private Polygon clone(Polygon p) {
+        return new Polygon(p.xpoints.clone(), p.ypoints.clone(), p.npoints);
+
+    }*/
+
     public UpdatePacket updateSecond(PosPacket p) {
-        rx2 = p.getX();
-        ry2 = p.getY();
+        int x = p.getX();
+        int y = p.getY();
         or2 = p.getOr();
         b2 = p.getB();
-        int x = rx2, y = ry2;
+        int[] xy = {x, y};
+        checkCollisions(xy, false);
+        rx2 = xy[0]; ry2 = xy[1];
         for (int b = 0; b < b2; b++) {
-            bullets.add(createBullet(or2, x, y));
+            bullets.add(createBullet(or2, rx2, ry2));
         }
         UpdatePacket up;
         synchronized(dirtUpdateFirst) {
-            up = new UpdatePacket(x, y, or1, rx1, ry1, b1, new HashSet<Point>(dirtUpdateSecond));
+            up = new UpdatePacket(rx2, ry2, or1, rx1, ry1, b1, new HashSet<Point>(dirtUpdateSecond));
             dirtUpdateSecond.clear();
         }
        return up;
     }
     
     public void init() {
-        for (int i = 0; i < DIRT_X_CNT; i++) {
+        for (int i = 0; i < Const.DIRT_X_CNT; i++) {
             Arrays.fill(dirt[i], true);
-            if ((i >= b1x/DIRT_W) && (i < (b1x+BASE_WIDTH)/DIRT_W)) {
-               Arrays.fill(dirt[i], b1y/DIRT_H, (b1y+BASE_HEIGHT)/DIRT_H, false); 
+            if ((i >= b1x/Const.DIRT_W) && (i < (b1x+Const.BASE_WIDTH)/Const.DIRT_W)) {
+               Arrays.fill(dirt[i], b1y/Const.DIRT_H, (b1y+Const.BASE_HEIGHT)/Const.DIRT_H, false);
             }
-            if ((i >= b2x/DIRT_W) && (i < (b2x+BASE_WIDTH)/DIRT_W)) {
-               Arrays.fill(dirt[i], b2y/DIRT_H, (b2y+BASE_HEIGHT)/DIRT_H, false); 
+            if ((i >= b2x/Const.DIRT_W) && (i < (b2x+Const.BASE_WIDTH)/Const.DIRT_W)) {
+               Arrays.fill(dirt[i], b2y/Const.DIRT_H, (b2y+Const.BASE_HEIGHT)/Const.DIRT_H, false);
             }
         }
         dirtUpdateFirst.clear();
@@ -123,8 +185,8 @@ public class Scene implements ActionListener {
             Iterator<Bullet> iter = bullets.iterator();
             while (iter.hasNext()) {
                 Bullet b = iter.next();
-                int x = b.x / DIRT_W;
-                int y = b.y / DIRT_H;
+                int x = b.x / Const.DIRT_W;
+                int y = b.y / Const.DIRT_H;
                 if (dirt[x][y]) {
                     dig(x, y);
                     iter.remove();
@@ -149,35 +211,54 @@ public class Scene implements ActionListener {
         int posX = x, posY = y;
         switch (or) {
             case 0:
-                posY -= TANK_H2;
+                posY -= Const.TANK_H2;
                 break;
             case 1:
-                posX += TANK_DIAG;
-                posY -= TANK_DIAG;
+                posX += Const.TANK_DIAG;
+                posY -= Const.TANK_DIAG;
                 break;
             case 2:
-                posX += TANK_H2;
+                posX += Const.TANK_H2;
                 break;
             case 3:
-                posX += TANK_DIAG;
-                posY += TANK_DIAG;
+                posX += Const.TANK_DIAG;
+                posY += Const.TANK_DIAG;
                 break;
             case 4:
-                posY += TANK_H2;
+                posY += Const.TANK_H2;
                 break;
             case 5:
-                posX -= TANK_DIAG;
-                posY += TANK_DIAG;
+                posX -= Const.TANK_DIAG;
+                posY += Const.TANK_DIAG;
                 break;
             case 6:
-                posX -= TANK_H2;
+                posX -= Const.TANK_H2;
                 break;
             case 7:
-                posX -= TANK_DIAG;
-                posY -= TANK_DIAG;
+                posX -= Const.TANK_DIAG;
+                posY -= Const.TANK_DIAG;
                 break;
         }
         return new Bullet(or, posX, posY);
     }
-    
+
+
+    public static Polygon createPolygon(Coordinate[] coords) {
+        LinearRing ring = new LinearRing(new CoordinateArraySequence(coords), GEOMETRY_FACTORY);
+        return new Polygon(ring, new LinearRing[0], GEOMETRY_FACTORY);
+    }
+
+    public static LineString createLine(Coordinate[] coords) {
+        return new LineString(new CoordinateArraySequence(coords), GEOMETRY_FACTORY);
+
+    }
+
+    private boolean collidesBaseWalls(Polygon t, int bx, int by) {
+        AffineTransformation tr = AffineTransformation.translationInstance(bx, by);
+        LineString lw = (LineString) tr.transform(Const.BASE_LEFT_WALL);
+        LineString rw = (LineString) tr.transform(Const.BASE_RIGHT_WALL);
+        if (lw.intersects(t)) {return true;}
+        if (rw.intersects(t)) {return true;}
+        return false;
+    }
 }
