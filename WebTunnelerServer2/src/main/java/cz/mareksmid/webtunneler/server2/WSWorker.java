@@ -40,7 +40,7 @@ class WSWorker {
         }
         //System.out.println(">"+s);
 
-        if (pp.getOr() == PosPacket.ORIENTATION_EXPLODED) {
+        if (pp.getOr() == Const.ORIENTATION_EXPLODED) {
             init();
         }
     }

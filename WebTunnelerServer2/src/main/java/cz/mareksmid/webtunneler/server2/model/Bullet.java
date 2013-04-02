@@ -4,6 +4,7 @@
  */
 package cz.mareksmid.webtunneler.server2.model;
 
+import cz.mareksmid.webtunneler.server2.Const;
 import cz.mareksmid.webtunneler.server2.Scene;
 
 /**
@@ -60,7 +61,7 @@ public class Bullet {
             y -= SHOOT_INCR_DIAG;
             break;
         }
-        return (x >= 0) && (y >= 0) && (x < Scene.ARENA_WIDTH) && (y < Scene.ARENA_HEIGHT);
+        return (x >= 0) && (y >= 0) && (x < Const.ARENA_WIDTH) && (y < Const.ARENA_HEIGHT);
     }
     
 }

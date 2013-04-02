@@ -10,9 +10,6 @@ package cz.mareksmid.webtunneler.server2.json;
  */
 public class PosPacket {
 
-    public static final int ORIENTATION_EXPLODED = 99;
-            
-            
     private int or;
     private int x;
     private int y;

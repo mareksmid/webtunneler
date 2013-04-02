@@ -48,7 +48,7 @@ public class SceneGen extends JPanel {
     private List<Polygon> stones;
     
     public SceneGen() {
-        this(Scene.ARENA_WIDTH, Scene.ARENA_HEIGHT);
+        this(Const.ARENA_WIDTH, Const.ARENA_HEIGHT);
     }
     
     public SceneGen(int w, int h) {
@@ -57,13 +57,13 @@ public class SceneGen extends JPanel {
         stones = new ArrayList<Polygon>();
 
         
-        b1x = (int) (Math.random() * (Scene.ARENA_WIDTH-Scene.BASE_WIDTH) / Scene.DIRT_W) * Scene.DIRT_W;
-        b1y = (int) (Math.random() * (Scene.ARENA_HEIGHT-Scene.BASE_HEIGHT) / Scene.DIRT_H) * Scene.DIRT_H;
+        b1x = (int) (Math.random() * (Const.ARENA_WIDTH-Const.BASE_WIDTH) / Const.DIRT_W) * Const.DIRT_W;
+        b1y = (int) (Math.random() * (Const.ARENA_HEIGHT-Const.BASE_HEIGHT) / Const.DIRT_H) * Const.DIRT_H;
         do {
-            b2x = (int) (Math.random() * (Scene.ARENA_WIDTH-Scene.BASE_WIDTH) / Scene.DIRT_W) * Scene.DIRT_W;
-            b2y = (int) (Math.random() * (Scene.ARENA_HEIGHT-Scene.BASE_HEIGHT) / Scene.DIRT_H) * Scene.DIRT_H;
-        } while ((b1x+Scene.BASE_WIDTH >= b2x) && (b2x+Scene.BASE_WIDTH >= b1x) &&
-                (b1y+Scene.BASE_HEIGHT >= b2y) && (b2y+Scene.BASE_HEIGHT >= b1y));
+            b2x = (int) (Math.random() * (Const.ARENA_WIDTH-Const.BASE_WIDTH) / Const.DIRT_W) * Const.DIRT_W;
+            b2y = (int) (Math.random() * (Const.ARENA_HEIGHT-Const.BASE_HEIGHT) / Const.DIRT_H) * Const.DIRT_H;
+        } while ((b1x+Const.BASE_WIDTH >= b2x) && (b2x+Const.BASE_WIDTH >= b1x) &&
+                (b1y+Const.BASE_HEIGHT >= b2y) && (b2y+Const.BASE_HEIGHT >= b1y));
         
         for (int i = 0; i < STONE_CNT; i++) {
             Polygon s = null;

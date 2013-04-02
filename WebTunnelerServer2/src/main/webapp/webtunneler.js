@@ -92,7 +92,7 @@ function processPacket(event) {
   }
   //if (ss[0] == 'EXPL') {
   //if (data.cmd == 'EXPL') {
-  if (data.eor == 99) {
+  if (data.eor == ORIENTATION_EXPLODED) {
     enemyDeaths++;
     explode();
     return;
@@ -222,7 +222,7 @@ function sendPos() {
 
 function sendExpl() {
   if (conn.readyState !== 1) {return;}
-  conn.send("{or:99;x:"+tx+";y:"+ty+";b:"+bulletsFired+"}");
+  conn.send("{or:"+ORIENTATION_EXPLODED+";x:"+tx+";y:"+ty+";b:"+bulletsFired+"}");
   bulletsFired = 0;
   //conn.send("EXPL");
 }

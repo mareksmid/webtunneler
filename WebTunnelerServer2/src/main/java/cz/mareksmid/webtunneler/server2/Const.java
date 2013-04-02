@@ -16,6 +16,8 @@ public class Const {
 
     public static final int BULLET_INTERVAL = 40;
 
+    public static final int ORIENTATION_EXPLODED = 99;
+
     public static final int ARENA_WIDTH = 1600;
     public static final int ARENA_HEIGHT = 1200;
     public static final int BASE_WIDTH = 120;

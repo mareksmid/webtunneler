@@ -13,8 +13,6 @@ import java.util.Set;
  */
 public class UpdatePacket {
 
-    public static final int ORIENTATION_EXPLODED = 99;
-
     private int rx, ry;
             
     private int eor;

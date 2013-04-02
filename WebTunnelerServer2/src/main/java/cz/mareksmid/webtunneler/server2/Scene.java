@@ -88,8 +88,8 @@ public class Scene implements ActionListener {
     }
 
     private void checkCollisions(int[] xy, boolean first) {
-        if (first) {if (or1 == PosPacket.ORIENTATION_EXPLODED) {return;}}
-        else {if (or2 == PosPacket.ORIENTATION_EXPLODED) {return;}}
+        if (first) {if (or1 == Const.ORIENTATION_EXPLODED) {return;}}
+        else {if (or2 == Const.ORIENTATION_EXPLODED) {return;}}
 
         boolean c = false;
         Polygon t, et;
