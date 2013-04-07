@@ -16,7 +16,7 @@ public class Const {
 
     public static final int BULLET_INTERVAL = 40;
 
-    public static final int ORIENTATION_EXPLODED = 99;
+    //public static final int ORIENTATION_EXPLODED = 99;
 
     public static final int ARENA_WIDTH = 1600;
     public static final int ARENA_HEIGHT = 1200;
@@ -28,6 +28,11 @@ public class Const {
     public static final int TANK_H2 = 21;
     public static final int TANK_R = 21;
     public static final int TANK_DIAG = (int) Math.round(Math.sqrt(2)/2*TANK_H2);
+
+    public static final int BULLET_INCR_RECT = 10;
+    public static final int BULLET_INCR_DIAG = 7;
+    public static final int BULLET_SHOOT_INCR_RECT = 20;
+    public static final int BULLET_SHOOT_INCR_DIAG = 14;
 
     public static final int DIRT_W = 10;
     public static final int DIRT_H = 10;

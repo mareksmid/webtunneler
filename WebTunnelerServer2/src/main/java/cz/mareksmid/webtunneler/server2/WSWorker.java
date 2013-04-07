@@ -31,16 +31,17 @@ class WSWorker {
 
         try {
             if (c.equals(first)) {
-                first.sendMessage(new Gson().toJson(scene.updateFirst(pp)));
+                first.sendMessage(new Gson().toJson(scene.update(pp, true)));
             } else {
-                second.sendMessage(new Gson().toJson(scene.updateSecond(pp)));
+                second.sendMessage(new Gson().toJson(scene.update(pp, false)));
             }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         //System.out.println(">"+s);
 
-        if (pp.getOr() == Const.ORIENTATION_EXPLODED) {
+        //if (pp.getOr() == Const.ORIENTATION_EXPLODED) {
+        if (scene.isExploded()) {
             init();
         }
     }

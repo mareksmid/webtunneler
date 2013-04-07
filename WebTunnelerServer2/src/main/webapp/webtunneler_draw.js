@@ -2,12 +2,7 @@
 function draw() {
   ctx.fillStyle = "#E0E0E0";
   ctx.fillRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
-  ctx.fillStyle = "#00FF00";
-  ctx.fillText(""+pressed, 10, 420);
-  ctx.fillText(""+orientation+" "+tx+" "+ty+" / "+rx+" "+ry, 10, 435);
-  ctx.fillText(""+eorientation+" "+etx+" "+ety, 10, 450);
-  ctx.fillText(""+energy+" "+health+" "+shooting+" "+bullets, 10, 465);
-  
+
   ax = rx - BOARD_WIDTH/2;
   if (ax < 0) {ax = 0;} else if (ax > ARENA_WIDTH-BOARD_WIDTH+1) {ax = ARENA_WIDTH-BOARD_WIDTH+1;}
   ay = ry - BOARD_HEIGHT/2;
@@ -82,7 +77,12 @@ function draw() {
     sx = BOARD_WIDTH/2 + BOARD_WIDTH/6;
     ctx.fillText(""+deaths, sx, SCORE_T_OFFS);
   //}
-  
+
+    ctx.fillStyle = "#00FF00";
+    ctx.fillText(""+pressed, 10, 420);
+    ctx.fillText(""+orientation+" "+tx+" "+ty+" / "+rx+" "+ry, 10, 435);
+    ctx.fillText(""+eorientation+" "+etx+" "+ety, 10, 450);
+    ctx.fillText(""+energy+" "+health+" "+shooting+" "+bullets, 10, 465);
 }
 
 function drawBase(bcl, bx, by) {

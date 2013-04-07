@@ -35,7 +35,7 @@ function newBullet(cx, cy, orientation) {
 }
 
 
-function collides(b, x, y) {
+/*function collides(b, x, y) {
   var x1 = x, x2 = x;
   var y1 = y, y2 = y;
 
@@ -71,7 +71,7 @@ function collides(b, x, y) {
   }
 
   return (b[1] >= x1) && (b[1] < x2) && (b[2] >= y1) && (b[2] < y2);
-}
+}*/
 
 
 function moveBullet(b) {
@@ -110,8 +110,10 @@ function moveBullet(b) {
 
 function shootBullets() {
   if (energy < BULLET_ENERGY) {return;}
-  bullets.push(newBullet(rx, ry, orientation));
-  bulletsFired++;
+  var b = newBullet(rx, ry, orientation);
+  bullets.push(b);
+  newBullets.push(b);
+  //bulletsFired++;
   energy -= BULLET_ENERGY;
 }
 
@@ -130,13 +132,13 @@ function checkBullets() {
     else if (collides(b, rx, ry)) {
       if (beg) {enemyBullets.shift();}
       health -= BULLET_DAMAGE;
-      if (health <= 0) {
+      //if (health <= 0) {
 	  //resetPos();
-	  deaths++;
+	  //deaths++;
 	  //exploded = true;
-	  sendExpl();
-	  explode();
-      }
+	  //sendExpl();
+	  //explode();
+      //}
     } else {beg = false;}
   }
 }

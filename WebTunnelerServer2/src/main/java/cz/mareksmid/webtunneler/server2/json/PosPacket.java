@@ -4,6 +4,11 @@
  */
 package cz.mareksmid.webtunneler.server2.json;
 
+import cz.mareksmid.webtunneler.server2.model.Bullet;
+
+import java.util.List;
+import java.util.Set;
+
 /**
  *
  * @author marek
@@ -13,13 +18,13 @@ public class PosPacket {
     private int or;
     private int x;
     private int y;
-    private int b;
+    private Set<Bullet> b;
 
-    public int getB() {
+    public Set<Bullet> getB() {
         return b;
     }
 
-    public void setB(int b) {
+    public void setB(Set<Bullet> b) {
         this.b = b;
     }
 

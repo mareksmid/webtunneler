@@ -47,11 +47,12 @@ public class Scene implements ActionListener {
     private List<Polygon> stones;
     
     private int or1, or2;
-    private int b1, b2;
+    //private int b1, b2;
     
     private final boolean[][] dirt = new boolean[Const.DIRT_X_CNT][Const.DIRT_Y_CNT];
-    private final Set<Point> dirtUpdateFirst, dirtUpdateSecond;
-    private final Set<Bullet> bullets;
+    private final Set<Point> dirtUpdate1, dirtUpdate2;
+    private final Set<Bullet> bullets1, bullets2;
+    private final Set<Bullet> bulletsUpdate1, bulletsUpdate2;
     
     private final Timer bulletTimer = new Timer(Const.BULLET_INTERVAL, this);
     
@@ -62,34 +63,55 @@ public class Scene implements ActionListener {
         this.b2y = b2y;
         this.stones = stones;
         
-        dirtUpdateFirst = Collections.synchronizedSet(new HashSet<Point>());
-        dirtUpdateSecond = Collections.synchronizedSet(new HashSet<Point>());
-        bullets = Collections.synchronizedSet(new HashSet<Bullet>());
+        dirtUpdate1 = Collections.synchronizedSet(new HashSet<Point>());
+        dirtUpdate2 = Collections.synchronizedSet(new HashSet<Point>());
+        bullets1 = Collections.synchronizedSet(new HashSet<Bullet>());
+        bullets2 = Collections.synchronizedSet(new HashSet<Bullet>());
+        bulletsUpdate1 = Collections.synchronizedSet(new HashSet<Bullet>());
+        bulletsUpdate2 = Collections.synchronizedSet(new HashSet<Bullet>());
     }
         
 
-    public UpdatePacket updateFirst(PosPacket p) {
+    public UpdatePacket update(PosPacket p, boolean first) {
         int x = p.getX();
         int y= p.getY();
-        or1 = p.getOr();
-        b1 = p.getB();
+        if (first) or1 = p.getOr();
+        else or2 = p.getOr();
+        //b1 = p.getB();
+        //b2 = p.getB();
         int[] xy = {x, y};
-        checkCollisions(xy, true);
-        rx1 = xy[0]; ry1 = xy[1];
-        for (int b = 0; b < b1; b++) {
+        checkCollisions(xy, first);
+        if (first) {rx1 = xy[0]; ry1 = xy[1];}
+        else {rx2 = xy[0]; ry2 = xy[1];}
+        if (first) {
+            bullets1.addAll(p.getB());
+            bulletsUpdate2.addAll(p.getB());
+        } else {
+            bullets2.addAll(p.getB());
+            bulletsUpdate1.addAll(p.getB());
+        }
+        /*for (int b = 0; b < b1; b++) {
             bullets.add(createBullet(or1, rx1, ry1));
         }
+        for (int b = 0; b < b2; b++) {
+            bullets.add(createBullet(or2, rx2, ry2));
+        }*/
         UpdatePacket up;
-        synchronized(dirtUpdateFirst) {
-            up = new UpdatePacket(rx1, ry1, or2, rx2, ry2, b2, new HashSet<Point>(dirtUpdateFirst));
-            dirtUpdateFirst.clear();
+        if (first) synchronized(dirtUpdate1) {
+            up = new UpdatePacket(rx1, ry1, or2, rx2, ry2, bulletsUpdate1, new HashSet<Point>(dirtUpdate1));
+            dirtUpdate1.clear();
+            bulletsUpdate1.clear();
+        } else synchronized(dirtUpdate2) {
+            up = new UpdatePacket(rx2, ry2, or1, rx1, ry1, bulletsUpdate2, new HashSet<Point>(dirtUpdate2));
+            dirtUpdate2.clear();
+            bulletsUpdate2.clear();
         }
         return up;
     }
 
     private void checkCollisions(int[] xy, boolean first) {
-        if (first) {if (or1 == Const.ORIENTATION_EXPLODED) {return;}}
-        else {if (or2 == Const.ORIENTATION_EXPLODED) {return;}}
+        //if (first) {if (or1 == Const.ORIENTATION_EXPLODED) {return;}}
+        //else {if (or2 == Const.ORIENTATION_EXPLODED) {return;}}
 
         boolean c = false;
         Polygon t, et;
@@ -141,25 +163,6 @@ public class Scene implements ActionListener {
 
     }*/
 
-    public UpdatePacket updateSecond(PosPacket p) {
-        int x = p.getX();
-        int y = p.getY();
-        or2 = p.getOr();
-        b2 = p.getB();
-        int[] xy = {x, y};
-        checkCollisions(xy, false);
-        rx2 = xy[0]; ry2 = xy[1];
-        for (int b = 0; b < b2; b++) {
-            bullets.add(createBullet(or2, rx2, ry2));
-        }
-        UpdatePacket up;
-        synchronized(dirtUpdateFirst) {
-            up = new UpdatePacket(rx2, ry2, or1, rx1, ry1, b1, new HashSet<Point>(dirtUpdateSecond));
-            dirtUpdateSecond.clear();
-        }
-       return up;
-    }
-    
     public void init() {
         for (int i = 0; i < Const.DIRT_X_CNT; i++) {
             Arrays.fill(dirt[i], true);
@@ -170,40 +173,43 @@ public class Scene implements ActionListener {
                Arrays.fill(dirt[i], b2y/Const.DIRT_H, (b2y+Const.BASE_HEIGHT)/Const.DIRT_H, false);
             }
         }
-        dirtUpdateFirst.clear();
-        dirtUpdateSecond.clear();
-        bullets.clear();
+        dirtUpdate1.clear();
+        dirtUpdate2.clear();
+        bullets1.clear();
+        bullets2.clear();
         bulletTimer.start();
     }
     
     public void actionPerformed(ActionEvent ev) {
         Object src = ev.getSource();
         if (src == bulletTimer) {
-            /*int x = (int) (Math.random()*20);
-            int y = (int) (Math.random()*20);
-            dig(x, y);*/
-            Iterator<Bullet> iter = bullets.iterator();
-            while (iter.hasNext()) {
-                Bullet b = iter.next();
-                int x = b.x / Const.DIRT_W;
-                int y = b.y / Const.DIRT_H;
-                if (dirt[x][y]) {
-                    dig(x, y);
-                    iter.remove();
-                } else {
-                    if (!b.move()) {iter.remove();}
-                }
+            processBullets(bullets1);
+            processBullets(bullets2);
+        }
+    }
+
+    private void processBullets(Set<Bullet> bullets) {
+        Iterator<Bullet> iter = bullets.iterator();
+        while (iter.hasNext()) {
+            Bullet b = iter.next();
+            int x = b.x / Const.DIRT_W;
+            int y = b.y / Const.DIRT_H;
+            if (dirt[x][y]) {
+                dig(x, y);
+                iter.remove();
+            } else {
+                if (!b.move()) {iter.remove();}
             }
         }
     }
     
     private void dig(int x, int y) {
         dirt[x][y] = false;
-        synchronized(dirtUpdateFirst) {
-            dirtUpdateFirst.add(new Point(x, y));
+        synchronized(dirtUpdate1) {
+            dirtUpdate1.add(new Point(x, y));
         }
-        synchronized(dirtUpdateSecond) {
-            dirtUpdateSecond.add(new Point(x, y));
+        synchronized(dirtUpdate2) {
+            dirtUpdate2.add(new Point(x, y));
         }
     }
     
@@ -259,6 +265,10 @@ public class Scene implements ActionListener {
         LineString rw = (LineString) tr.transform(Const.BASE_RIGHT_WALL);
         if (lw.intersects(t)) {return true;}
         if (rw.intersects(t)) {return true;}
+        return false;
+    }
+
+    public boolean isExploded() {
         return false;
     }
 }

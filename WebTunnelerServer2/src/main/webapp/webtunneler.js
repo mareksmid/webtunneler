@@ -12,7 +12,8 @@ var energy = MAX_ENERGY;
 var health = MAX_HEALTH;
 var shooting = false;
 var bullets = new Array();
-var bulletsFired = 0;
+var newBullets = new Array();
+//var bulletsFired = 0;
 //var exploded = false;
 var stones = null;
 var dirt = null;
@@ -92,21 +93,27 @@ function processPacket(event) {
   }
   //if (ss[0] == 'EXPL') {
   //if (data.cmd == 'EXPL') {
-  if (data.eor == ORIENTATION_EXPLODED) {
+  if (data.cmd == 'EEXPL') {
     enemyDeaths++;
     explode();
     return;
   }
-  tx = rx = data.rx;
-  ty = ry = data.ry;
+  if (data.cmd == 'EXPL') {
+    deaths++;
+    explode();
+    return;
+  }
+  tx = rx = data.x;
+  ty = ry = data.y;
 
   eorientation = data.eor;
   etx = data.ex;
   ety = data.ey;
-  var enemyBulletsFired = data.eb;
-  for (var i = 0; i < enemyBulletsFired; i++) {
+  //var enemyBulletsFired = data.eb;
+  var enemyBullets = enemyBullets.concat(data.eb);
+  /*for (var i = 0; i < enemyBulletsFired; i++) {
     enemyBullets.push(newBullet(etx, ety, eorientation));
-  }
+  }*/
   
   for (var di in data.dirtRemoved) {
     var d = data.dirtRemoved[di];
@@ -216,16 +223,16 @@ function sendInit(id, cmd) {
 
 function sendPos() {
   if (conn.readyState !== 1) {return;}
-  conn.send("{or:"+orientation+";x:"+tx+";y:"+ty+";b:"+bulletsFired+"}");
+  conn.send("{or:"+orientation+";x:"+tx+";y:"+ty+";b:"+JSON.stringify(newBullets)+"}");
   bulletsFired = 0;
 }
 
-function sendExpl() {
+/*function sendExpl() {
   if (conn.readyState !== 1) {return;}
   conn.send("{or:"+ORIENTATION_EXPLODED+";x:"+tx+";y:"+ty+";b:"+bulletsFired+"}");
   bulletsFired = 0;
   //conn.send("EXPL");
-}
+}*/
 
 function keyDown(e) {
   var c = e.keyCode;
