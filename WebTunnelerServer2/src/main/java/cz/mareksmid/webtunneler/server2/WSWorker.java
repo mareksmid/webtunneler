@@ -8,7 +8,7 @@ package cz.mareksmid.webtunneler.server2;
 import com.google.gson.Gson;
 import cz.mareksmid.webtunneler.server2.json.ScenePacket;
 import cz.mareksmid.webtunneler.server2.json.PosPacket;
-import org.glassfish.websocket.platform.WebSocketWrapper;
+import javax.websocket.Session;
 
 /**
  *
@@ -17,23 +17,23 @@ import org.glassfish.websocket.platform.WebSocketWrapper;
 class WSWorker {
     
     private boolean assigned = false;
-    private WebSocketWrapper first, second = null;
+    private Session first, second = null;
     private String id;
     private Scene scene;
 
-    public WSWorker(WebSocketWrapper c, String id) {
+    public WSWorker(Session c, String id) {
         first = c;
         this.id = id;
     }
 
-    public void processPacket(PosPacket pp, WebSocketWrapper c) {
+    public void processPacket(PosPacket pp, Session c) {
         if (!assigned) {return;}
 
         try {
             if (c.equals(first)) {
-                first.sendMessage(new Gson().toJson(scene.update(pp, true)));
+                first.getBasicRemote().sendObject(new Gson().toJson(scene.update(pp, true)));
             } else {
-                second.sendMessage(new Gson().toJson(scene.update(pp, false)));
+                second.getBasicRemote().sendObject(new Gson().toJson(scene.update(pp, false)));
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -46,7 +46,7 @@ class WSWorker {
         }
     }
 
-    public void setSecond(WebSocketWrapper c) {
+    public void setSecond(Session c) {
         if (assigned) {throw new RuntimeException("Already assigned");}
         second = c;
         assigned = true;
@@ -64,8 +64,8 @@ class WSWorker {
 
         Gson g = new Gson();
         try {
-            first.sendMessage(g.toJson(scenes[0]));
-            second.sendMessage(g.toJson(scenes[1]));
+            first.getBasicRemote().sendObject(g.toJson(scenes[0]));
+            second.getBasicRemote().sendObject(g.toJson(scenes[1]));
         } catch (Exception ex) {
             ex.printStackTrace();
         }

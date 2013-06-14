@@ -63,7 +63,8 @@ function openConnection() {
     //conn = new WebSocket('ws://localhost:8787/?;prot=text');
     //conn = new WebSocket('ws://localhost:8787/?;subprot=custom/text');
     //conn = new WebSocket('ws://localhost:8787/');//, 'custom/text');
-    conn = new WebSocket('ws://'+SERVER+'/websockets/wts');
+    //conn = new WebSocket('ws://'+SERVER+'/websockets/wts');
+    conn = new WebSocket('ws://'+SERVER+'/wt/wts');
     conn.onopen = function () {
       console.log('Socket open');
       //var cmd = (window.location.href.indexOf('new') >= 0) ? 'NEW' : 'JOIN';
