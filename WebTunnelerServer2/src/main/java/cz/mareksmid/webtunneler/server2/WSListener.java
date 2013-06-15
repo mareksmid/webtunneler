@@ -13,9 +13,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import javax.ejb.EJB;
+import javax.inject.Inject;
 
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -23,32 +27,26 @@ import javax.websocket.server.ServerEndpoint;
  */
 @ServerEndpoint(value="/wts")
 public class WSListener {
+    
+    private static final Logger log = LoggerFactory.getLogger(WSListener.class);
 
     public static final String INIT_NEW = "NEW";
     public static final String INIT_JOIN = "JOIN";
 
-    Map<String,WSWorker> workers;
-    Map<String, WSWorker> workersById;
-
-    Set<String> firsts = new HashSet<String>();
-
-    public WSListener() {
-        workers = new HashMap<String, WSWorker>();
-        workersById = new HashMap<String, WSWorker>();
-        System.out.println("init");
-    }
+    @Inject
+    private CommBean commBean;
 
     @OnMessage
     public void processPacket(String message, Session sess) {
         String  c = sess.getId();
         //System.out.println("packet: "+message+" - "+wsw+" - "+wsw.getConversation().getConversationID());
-        if (!firsts.contains(c)) {
-        System.out.println(""+c+":"+message);
+        /*if (!firsts.contains(c)) {
+            System.out.println(""+c+":"+message);
             firsts.add(c);
-        }
+        }*/
 
         String s = message;
-        WSWorker w = workers.get(c);
+        WSWorker w = commBean.getWorker(c);
 
         Gson g = new Gson();
         
@@ -56,45 +54,50 @@ public class WSListener {
             InitPacket i = g.fromJson(s, InitPacket.class);
 
             if (INIT_NEW.equals(i.getCmd())) {
-                System.out.println("new worker for "+i.getId());
+                log.info("new worker for "+i.getId());
                 w = new WSWorker(sess, i.getId());
-                workersById.put(i.getId(), w);
+                commBean.putWorkersById(i.getId(), w);
 
             } else if (INIT_JOIN.equals(i.getCmd())) {
-                w = workersById.get(i.getId());
+                w = commBean.getWorkersById(i.getId());
                 if (w == null) {
-                    System.err.println("Worker for second does not exist: "+i.getId());
+                    log.warn("Worker for second does not exist: "+i.getId());
                     return;
                 }
-                System.out.println("joined worker for "+i.getId());
-                w.setSecond(sess);
+                log.info("joined worker for "+i.getId());
+                synchronized (w) {
+                    w.setSecond(sess);
+                }
 
             } else {
-                System.err.println("Unknown init packet: "+s);
+                log.warn("Unknown init packet: "+s);
                 return;
             }
 
-            workers.put(c, w);
+            commBean.putWorker(c, w);
             return;
         }
         
         PosPacket p = g.fromJson(s, PosPacket.class);
-        w.processPacket(p, sess);
+        synchronized (w) {
+            w.processPacket(p, sess);
+        }
     }
 
 
     @OnOpen
     public void processOpened(Session session) {
-        System.out.println("o opened1: "+session);
+        log.info("Socket opened: session "+session);
     }
 
     @OnClose
     public void processClosed(Session session) {
-        System.out.println("o closed: "+session);
+        log.info("Socket opened: session "+session);
     }
     @OnError
     public void processError(Session session, Throwable error) {
-        System.out.println("o error: "+error+" - "+session);
+        log.warn("Socket error: "+error+" from session "+session);
+        error.printStackTrace();
     }
 
 }

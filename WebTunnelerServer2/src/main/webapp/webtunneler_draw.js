@@ -50,11 +50,11 @@ function draw() {
   ctx.strokeStyle = "#FF0000";
   for (var i in bullets) {
     var b = bullets[i];
-    ctx.strokeRect(b[1]-ax-2, b[2]-ay-2, 4, 4);
+    ctx.strokeRect(b.x-ax-2, b.y-ay-2, 4, 4);
   }
   for (var i in enemyBullets) {
     var b = enemyBullets[i];
-    ctx.strokeRect(b[1]-ax-2, b[2]-ay-2, 4, 4);
+    ctx.strokeRect(b.x-ax-2, b.y-ay-2, 4, 4);
   }
 
   //if (eorientation >= 0) {

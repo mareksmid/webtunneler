@@ -116,8 +116,8 @@ function processPacket(event) {
     enemyBullets.push(newBullet(etx, ety, eorientation));
   }*/
   
-  for (var di in data.dirtRemoved) {
-    var d = data.dirtRemoved[di];
+  for (var di in data.drem) {
+    var d = data.drem[di];
     dirt[d.x][d.y] = false;
   }
 }

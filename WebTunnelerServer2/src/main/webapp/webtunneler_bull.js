@@ -31,7 +31,7 @@ function newBullet(cx, cy, orientation) {
 	    posY -= TANK_DIAG;
 	    break;
     }
-    return [orientation, posX, posY];
+    return {or: orientation, x: posX, y: posY};
 }
 
 
@@ -75,37 +75,37 @@ function newBullet(cx, cy, orientation) {
 
 
 function moveBullet(b) {
-  switch (b[0]) {
+  switch (b.or) {
     case 0:
-	b[2] -= SHOOT_INCR_RECT;
+	b.y -= SHOOT_INCR_RECT;
 	break;
     case 1:
-	b[1] += SHOOT_INCR_DIAG;
-	b[2] -= SHOOT_INCR_DIAG;
+	b.x += SHOOT_INCR_DIAG;
+	b.y -= SHOOT_INCR_DIAG;
 	break;
     case 2:
-	b[1] += SHOOT_INCR_RECT;
+	b.x += SHOOT_INCR_RECT;
 	break;
     case 3:
-	b[1] += SHOOT_INCR_DIAG;
-	b[2] += SHOOT_INCR_DIAG;
+	b.x += SHOOT_INCR_DIAG;
+	b.y += SHOOT_INCR_DIAG;
 	break;
     case 4:
-	b[2] += SHOOT_INCR_RECT;
+	b.y += SHOOT_INCR_RECT;
 	break;
     case 5:
-	b[1] -= SHOOT_INCR_DIAG;
-	b[2] += SHOOT_INCR_DIAG;
+	b.x -= SHOOT_INCR_DIAG;
+	b.y += SHOOT_INCR_DIAG;
 	break;
     case 6:
-	b[1] -= SHOOT_INCR_RECT;
+	b.x -= SHOOT_INCR_RECT;
 	break;
     case 7:
-	b[1] -= SHOOT_INCR_DIAG;
-	b[2] -= SHOOT_INCR_DIAG;
+	b.x -= SHOOT_INCR_DIAG;
+	b.y -= SHOOT_INCR_DIAG;
 	break;
   }
-  return (b[1] >= 0) && (b[2] >= 0) && (b[1] < ARENA_WIDTH) && (b[2] < ARENA_HEIGHT);
+  return (b.x >= 0) && (b.y >= 0) && (b.x < ARENA_WIDTH) && (b.y < ARENA_HEIGHT);
 }
 
 function shootBullets() {

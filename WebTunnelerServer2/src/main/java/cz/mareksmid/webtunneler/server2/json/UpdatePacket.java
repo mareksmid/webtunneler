@@ -22,7 +22,7 @@ public class UpdatePacket {
     private int ex, ey;
     private Set<Bullet> eb;
     
-    private Set<Point> dirtRemoved;
+    private Set<Point> drem;
 
     
     public UpdatePacket(int x, int y, int eor, int ex, int ey, Set<Bullet> eb, Set<Point> dirtRemoved) {
@@ -32,7 +32,7 @@ public class UpdatePacket {
         this.ex = ex;
         this.ey = ey;
         this.eb = eb;
-        this.dirtRemoved = dirtRemoved;
+        this.drem = drem;
     }
     
     public int getX() {
@@ -86,12 +86,12 @@ public class UpdatePacket {
         this.ey = ey;
     }
 
-    public Set<Point> getDirtRemoved() {
-        return dirtRemoved;
+    public Set<Point> getDrem() {
+        return drem;
     }
 
-    public void setDirtRemoved(Set<Point> dirtRemoved) {
-        this.dirtRemoved = dirtRemoved;
+    public void setDrem(Set<Point> drem) {
+        this.drem = drem;
     }
 
     
