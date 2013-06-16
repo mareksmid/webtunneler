@@ -29,28 +29,29 @@ class WSWorker {
     public void processPacket(PosPacket pp, Session c) {
         if (!assigned) {return;}
 
-        try {
-            if (c.equals(first)) {
-                first.getBasicRemote().sendObject(new Gson().toJson(scene.update(pp, true)));
-            } else {
-                second.getBasicRemote().sendObject(new Gson().toJson(scene.update(pp, false)));
+        synchronized(scene) {
+            try {
+                if (c.equals(first)) {
+                    first.getBasicRemote().sendObject(new Gson().toJson(scene.update(pp, true)));
+                } else {
+                    second.getBasicRemote().sendObject(new Gson().toJson(scene.update(pp, false)));
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        //System.out.println(">"+s);
 
-        //if (pp.getOr() == Const.ORIENTATION_EXPLODED) {
-        if (scene.isExploded()) {
-            init();
+            //if (pp.getOr() == Const.ORIENTATION_EXPLODED) {
+            if (scene.isExploded()) {
+                init();
+            }
         }
     }
 
     public void setSecond(Session c) {
         if (assigned) {throw new RuntimeException("Already assigned");}
         second = c;
-        assigned = true;
         init();
+        assigned = true;
     }
 
     public boolean isAssigned() {

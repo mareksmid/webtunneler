@@ -113,7 +113,6 @@ function shootBullets() {
   var b = newBullet(rx, ry, orientation);
   bullets.push(b);
   newBullets.push(b);
-  //bulletsFired++;
   energy -= BULLET_ENERGY;
 }
 

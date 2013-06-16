@@ -16,8 +16,6 @@ public class Const {
 
     public static final int BULLET_INTERVAL = 40;
 
-    //public static final int ORIENTATION_EXPLODED = 99;
-
     public static final int ARENA_WIDTH = 1600;
     public static final int ARENA_HEIGHT = 1200;
     public static final int BASE_WIDTH = 120;
@@ -38,6 +36,17 @@ public class Const {
     public static final int DIRT_H = 10;
     public static final int DIRT_X_CNT = ARENA_WIDTH / DIRT_W;
     public static final int DIRT_Y_CNT = ARENA_HEIGHT / DIRT_H;
+    
+    
+    public static final int MAX_ENERGY = 100;
+    public static final int BULLET_ENERGY = 2;
+    public static final int ENERGY_INC = 2;
+
+    public static final int MAX_HEALTH = 100;
+    public static final int BULLET_DAMAGE = 5;
+    public static final int HEALTH_INC = 1;
+
+
 
     public static final Polygon TANK_POLY = Scene.createPolygon(new Coordinate[]{
             new Coordinate(+TANK_W2, -TANK_H2),

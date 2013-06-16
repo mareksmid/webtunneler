@@ -5,7 +5,6 @@
 package cz.mareksmid.webtunneler.server2.json;
 
 import java.awt.Point;
-//import java.awt.Polygon;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Polygon;
 

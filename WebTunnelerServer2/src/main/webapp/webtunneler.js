@@ -33,17 +33,14 @@ var shootCtr = 0;
 var tankImg, enemyTankImg;
 var explAudio;
 
-//var SERVER = 'malina.felk.cvut.cz:8080';
-var SERVER = 'localhost:8080';
-
 
 function init() {
   board =  document.getElementById('board');
   ctx = board.getContext('2d');
   tankImg = new Image();
   enemyTankImg = new Image();
-  tankImg.src= 'http://'+SERVER+'/wt/img/tank.png';
-  enemyTankImg.src= 'http://'+SERVER+'/wt/img/enemytank.png';
+  tankImg.src= '/wt/img/tank.png';
+  enemyTankImg.src= '/wt/img/enemytank.png';
   explAudio = document.getElementById('expl');
 
   if (window.WebSocket === undefined) {
@@ -55,22 +52,13 @@ function init() {
 
 function openConnection() {
   if (conn.readyState === undefined || conn.readyState > 1) {
-    //conn = new WebSocket('ws://localhost:8787', 'custom');
-    //conn = new WebSocket('ws://localhost:8787', 'json');
-    //conn = new WebSocket('ws://localhost:8787', 'text');
-    //conn = new WebSocket('ws://localhost:8787', 'custom/text');
-    //conn = new WebSocket('ws://localhost:8787/?;prot=custom');
-    //conn = new WebSocket('ws://localhost:8787/?;prot=text');
-    //conn = new WebSocket('ws://localhost:8787/?;subprot=custom/text');
-    //conn = new WebSocket('ws://localhost:8787/');//, 'custom/text');
-    //conn = new WebSocket('ws://'+SERVER+'/websockets/wts');
     conn = new WebSocket('ws://'+SERVER+'/wt/wts');
     conn.onopen = function () {
       console.log('Socket open');
-      //var cmd = (window.location.href.indexOf('new') >= 0) ? 'NEW' : 'JOIN';
       var cmd = newGame ? 'NEW' : 'JOIN';
       sendInit(gameId, cmd);
-      doTimer();
+      //doTimer();
+      timer = setInterval(doTimer, TIMER_INT);
     };
 
     conn.onmessage = processPacket;
@@ -82,18 +70,11 @@ function openConnection() {
 }
 
 function processPacket(event) {
-  //alert(event.data);
-  //ss = event.data.split(':');
-  //var data = eval('(' + event.data + ')');
   var data = JSON.parse(event.data);
-  //alert(event.data);
-  //if (ss[0] == 'INIT') {  
   if (data.cmd == 'SCENE') {
     initBoard(data);
     return;
   }
-  //if (ss[0] == 'EXPL') {
-  //if (data.cmd == 'EXPL') {
   if (data.cmd == 'EEXPL') {
     enemyDeaths++;
     explode();
@@ -110,11 +91,7 @@ function processPacket(event) {
   eorientation = data.eor;
   etx = data.ex;
   ety = data.ey;
-  //var enemyBulletsFired = data.eb;
-  var enemyBullets = enemyBullets.concat(data.eb);
-  /*for (var i = 0; i < enemyBulletsFired; i++) {
-    enemyBullets.push(newBullet(etx, ety, eorientation));
-  }*/
+  enemyBullets = enemyBullets.concat(data.eb);
   
   for (var di in data.drem) {
     var d = data.drem[di];
@@ -123,8 +100,6 @@ function processPacket(event) {
 }
 
 function doTimer() {
-  //alert('doTimer')
-  timer = setTimeout("doTimer()", TIMER_INT);
   updatePos();
   recharge();
   

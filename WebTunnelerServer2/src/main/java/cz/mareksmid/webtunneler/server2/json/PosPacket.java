@@ -4,9 +4,7 @@
  */
 package cz.mareksmid.webtunneler.server2.json;
 
-import cz.mareksmid.webtunneler.server2.model.Bullet;
 
-import java.util.List;
 import java.util.Set;
 
 /**

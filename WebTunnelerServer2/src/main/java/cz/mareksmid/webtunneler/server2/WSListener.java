@@ -9,11 +9,6 @@ import com.google.gson.Gson;
 import cz.mareksmid.webtunneler.server2.json.InitPacket;
 import cz.mareksmid.webtunneler.server2.json.PosPacket;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import javax.ejb.EJB;
 import javax.inject.Inject;
 
 import javax.websocket.*;
@@ -65,9 +60,7 @@ public class WSListener {
                     return;
                 }
                 log.info("joined worker for "+i.getId());
-                synchronized (w) {
-                    w.setSecond(sess);
-                }
+                w.setSecond(sess);
 
             } else {
                 log.warn("Unknown init packet: "+s);
@@ -79,9 +72,7 @@ public class WSListener {
         }
         
         PosPacket p = g.fromJson(s, PosPacket.class);
-        synchronized (w) {
-            w.processPacket(p, sess);
-        }
+        w.processPacket(p, sess);
     }
 
 

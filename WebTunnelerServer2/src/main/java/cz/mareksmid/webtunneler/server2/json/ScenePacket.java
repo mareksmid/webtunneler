@@ -4,7 +4,6 @@
  */
 package cz.mareksmid.webtunneler.server2.json;
 
-import java.util.HashSet;
 import java.util.Set;
 
 /**

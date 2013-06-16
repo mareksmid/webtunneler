@@ -5,14 +5,8 @@
 package cz.mareksmid.webtunneler.server2;
 
 import com.vividsolutions.jts.geom.*;
-import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 import cz.mareksmid.webtunneler.server2.json.PolygonJS;
 import cz.mareksmid.webtunneler.server2.json.ScenePacket;
-/*import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Polygon;
-import java.awt.geom.Rectangle2D;*/
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;

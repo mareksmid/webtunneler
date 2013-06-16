@@ -5,10 +5,7 @@
 package cz.mareksmid.webtunneler.server2;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
-import javax.ejb.Singleton;
 import javax.enterprise.context.ApplicationScoped;
 
 /**
@@ -20,8 +17,6 @@ public class CommBean {
     
     private Map<String,WSWorker> workers;
     private Map<String, WSWorker> workersById;
-
-    //private Set<String> firsts = new HashSet<String>();
 
     public CommBean() {
         workers = new HashMap<String, WSWorker>();

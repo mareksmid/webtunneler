@@ -13,6 +13,7 @@
     <script type="text/javascript">
         var gameId = #{game.game.id};
         var newGame = #{game.joinedGame ? 'false' : 'true'};
+        var SERVER = '#{facesContext.externalContext.requestServerName}:#{facesContext.externalContext.requestServerPort}';
     </script>
     <script type="text/javascript" src="webtunneler_const.js"></script>
     <script type="text/javascript" src="webtunneler_draw.js"></script>

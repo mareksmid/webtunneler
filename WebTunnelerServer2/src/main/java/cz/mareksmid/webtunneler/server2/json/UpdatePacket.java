@@ -4,10 +4,8 @@
  */
 package cz.mareksmid.webtunneler.server2.json;
 
-import cz.mareksmid.webtunneler.server2.model.Bullet;
 
 import java.awt.Point;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -25,7 +23,7 @@ public class UpdatePacket {
     private Set<Point> drem;
 
     
-    public UpdatePacket(int x, int y, int eor, int ex, int ey, Set<Bullet> eb, Set<Point> dirtRemoved) {
+    public UpdatePacket(int x, int y, int eor, int ex, int ey, Set<Bullet> eb, Set<Point> drem) {
         this.x = x;
         this.y = y;
         this.eor = eor;
