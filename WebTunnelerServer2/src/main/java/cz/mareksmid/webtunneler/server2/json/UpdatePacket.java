@@ -15,6 +15,7 @@ import java.util.Set;
 public class UpdatePacket {
 
     private int x, y;
+    private int h, e;
             
     private int eor;
     private int ex, ey;
@@ -23,9 +24,11 @@ public class UpdatePacket {
     private Set<Point> drem;
 
     
-    public UpdatePacket(int x, int y, int eor, int ex, int ey, Set<Bullet> eb, Set<Point> drem) {
+    public UpdatePacket(int x, int y, int h, int e, int eor, int ex, int ey, Set<Bullet> eb, Set<Point> drem) {
         this.x = x;
         this.y = y;
+        this.h = h;
+        this.e = e;
         this.eor = eor;
         this.ex = ex;
         this.ey = ey;
@@ -92,6 +95,21 @@ public class UpdatePacket {
         this.drem = drem;
     }
 
-    
+    public int getH() {
+        return h;
+    }
+
+    public void setH(int h) {
+        this.h = h;
+    }
+
+    public int getE() {
+        return e;
+    }
+
+    public void setE(int e) {
+        this.e = e;
+    }
+
 
 }

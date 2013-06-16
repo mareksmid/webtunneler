@@ -6,6 +6,7 @@
 package cz.mareksmid.webtunneler.server2;
 
 import com.google.gson.Gson;
+import cz.mareksmid.webtunneler.server2.json.InitPacket;
 import cz.mareksmid.webtunneler.server2.json.ScenePacket;
 import cz.mareksmid.webtunneler.server2.json.PosPacket;
 import javax.websocket.Session;
@@ -36,13 +37,25 @@ class WSWorker {
                 } else {
                     second.getBasicRemote().sendObject(new Gson().toJson(scene.update(pp, false)));
                 }
+                
+                if (scene.isExploded() != 0) {
+                    InitPacket ip = new InitPacket();
+                    ip.setId(id);
+                    ip.setCmd("EXPL");
+                    InitPacket ipe = new InitPacket();
+                    ipe.setId(id);
+                    ipe.setCmd("EEXPL");
+                    if (scene.isExploded() == 1) {
+                        first.getBasicRemote().sendObject(new Gson().toJson(ip));
+                        second.getBasicRemote().sendObject(new Gson().toJson(ipe));
+                    } else if (scene.isExploded() == 2) {
+                        first.getBasicRemote().sendObject(new Gson().toJson(ipe));
+                        second.getBasicRemote().sendObject(new Gson().toJson(ip));
+                    }
+                    init();
+                }
             } catch (Exception ex) {
                 ex.printStackTrace();
-            }
-
-            //if (pp.getOr() == Const.ORIENTATION_EXPLODED) {
-            if (scene.isExploded()) {
-                init();
             }
         }
     }

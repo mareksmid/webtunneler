@@ -32,6 +32,9 @@ public class Scene implements ActionListener {
     private int or1, or2;
     private int t1h, t2h;
     private int t1e, t2e;
+    private int t1d = 0, t2d = 0;
+    
+    private int exploded = 0;
     
     private int b1x, b1y, b2x, b2y;
     private List<Polygon> stones;
@@ -73,25 +76,29 @@ public class Scene implements ActionListener {
             }
         }
         if (first) {
-            bullets1.addAll(p.getB());
-            bulletsUpdate2.addAll(p.getB());
+            for (Bullet b : p.getB()) {
+                if (t1e >= Const.BULLET_ENERGY) {
+                    bullets1.add(b);
+                    bulletsUpdate2.add(b);
+                    t1e -= Const.BULLET_ENERGY;
+                }
+            }
         } else {
-            bullets2.addAll(p.getB());
-            bulletsUpdate1.addAll(p.getB());
+            for (Bullet b : p.getB()) {
+                if (t2e >= Const.BULLET_ENERGY) {
+                    bullets2.add(b);
+                    bulletsUpdate1.add(b);
+                    t2e -= Const.BULLET_ENERGY;
+                }
+            }
         }
-        /*for (int b = 0; b < b1; b++) {
-            bullets.add(createBullet(or1, rx1, ry1));
-        }
-        for (int b = 0; b < b2; b++) {
-            bullets.add(createBullet(or2, rx2, ry2));
-        }*/
         UpdatePacket up;
         if (first) synchronized(dirtUpdate1) {
-            up = new UpdatePacket(t1x, t1y, or2, t2x, t2y, bulletsUpdate1, new HashSet<Point>(dirtUpdate1));
+            up = new UpdatePacket(t1x, t1y, t1h, t1e, or2, t2x, t2y, bulletsUpdate1, new HashSet<Point>(dirtUpdate1));
             dirtUpdate1.clear();
             bulletsUpdate1.clear();
         } else synchronized(dirtUpdate2) {
-            up = new UpdatePacket(t2x, t2y, or1, t1x, t1y, bulletsUpdate2, new HashSet<Point>(dirtUpdate2));
+            up = new UpdatePacket(t2x, t2y, t2h, t2e, or1, t1x, t1y, bulletsUpdate2, new HashSet<Point>(dirtUpdate2));
             dirtUpdate2.clear();
             bulletsUpdate2.clear();
         }
@@ -148,6 +155,7 @@ public class Scene implements ActionListener {
         t2e = Const.MAX_ENERGY;
         t1h = Const.MAX_HEALTH;
         t2h = Const.MAX_HEALTH;
+        exploded = 0;
         bulletTimer.start();
     }
     
@@ -157,16 +165,20 @@ public class Scene implements ActionListener {
         if (src == bulletTimer) {
             processBullets(bullets1);
             processBullets(bullets2);
+            recharge();
         }
     }
 
     private void processBullets(Set<Bullet> bullets) {
+        if (!bullets.isEmpty()) System.out.println("1:"+bullets);
         Iterator<Bullet> iter = bullets.iterator();
         while (iter.hasNext()) {
             Bullet b = iter.next();
             int x = b.x / Const.DIRT_W;
             int y = b.y / Const.DIRT_H;
-
+            
+            System.out.println("#"+b.x+" "+b.y);
+            
             if (collidesTank(true, createPoint(b.x, b.y))) {
                 hitTank(true);
                 iter.remove();
@@ -177,9 +189,13 @@ public class Scene implements ActionListener {
                 dig(x, y);
                 iter.remove();
             } else {
+                System.out.println(">"+b);
                 if (!b.move()) {iter.remove();}
+                System.out.println(">>"+b);
+                System.out.println(">>>"+bullets);
             }
         }
+        if (!bullets.isEmpty()) System.out.println("2:"+bullets);
     }
     
     private boolean collidesTank(boolean first, Geometry g) {
@@ -262,16 +278,31 @@ public class Scene implements ActionListener {
             t1h -= Const.BULLET_DAMAGE;
             if (t1h <= 0) {
                 t1h = 0;
+                t1d++;
+                exploded = 1;
             }
         } else {
             t2h -= Const.BULLET_DAMAGE;
             if (t2h <= 0) {
                 t2h = 0;
+                t2d++;
+                exploded = 2;
             }
         }
     }
 
-    public boolean isExploded() {
-        return false;
+    public int isExploded() {
+        return exploded;
+    }
+
+    private void recharge() {
+        if ((t1x >= b1x) && (t1x < b1x+Const.BASE_WIDTH) && (t1y >= b1y) && (t1y < b1y+Const.BASE_HEIGHT)) {
+          if (t1h < Const.MAX_HEALTH) {t1h += Const.HEALTH_INC; if (t1h > Const.MAX_HEALTH) {t1h = Const.MAX_HEALTH;}}
+          if (t1e < Const.MAX_ENERGY) {t1e += Const.ENERGY_INC; if (t1e > Const.MAX_ENERGY) {t1e = Const.MAX_ENERGY;}}
+        }
+        if ((t2x >= b2x) && (t2x < b2x+Const.BASE_WIDTH) && (t2y >= b2y) && (t2y < b2y+Const.BASE_HEIGHT)) {
+          if (t2h < Const.MAX_HEALTH) {t2h += Const.HEALTH_INC; if (t2h > Const.MAX_HEALTH) {t2h = Const.MAX_HEALTH;}}
+          if (t2e < Const.MAX_ENERGY) {t2e += Const.ENERGY_INC; if (t2e > Const.MAX_ENERGY) {t2e = Const.MAX_ENERGY;}}
+        }
     }
 }

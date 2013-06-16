@@ -13,8 +13,6 @@ var health = MAX_HEALTH;
 var shooting = false;
 var bullets = new Array();
 var newBullets = new Array();
-//var bulletsFired = 0;
-//var exploded = false;
 var stones = null;
 var dirt = null;
 
@@ -87,6 +85,8 @@ function processPacket(event) {
   }
   tx = rx = data.x;
   ty = ry = data.y;
+  energy = data.e;
+  health = data.h;
 
   eorientation = data.eor;
   etx = data.ex;
@@ -101,7 +101,6 @@ function processPacket(event) {
 
 function doTimer() {
   updatePos();
-  recharge();
   
   checkBullets();
   if (shooting) {
@@ -116,14 +115,6 @@ function doTimer() {
   sendPos();
   draw();
 }
-
-function recharge() {
-  if ((rx >= bx) && (rx < bx+BASE_WIDTH) && (ry >= by) && (ry < by+BASE_HEIGHT)) {
-    if (health < MAX_HEALTH) {health += HEALTH_INC; if (health > MAX_HEALTH) {health = MAX_HEALTH;}}
-    if (energy < MAX_ENERGY) {energy += ENERGY_INC; if (energy > MAX_ENERGY) {energy = MAX_ENERGY;}}
-  }
-}
-
 
 function initBoard(data) {
   bx = data.bx;
@@ -200,15 +191,9 @@ function sendInit(id, cmd) {
 function sendPos() {
   if (conn.readyState !== 1) {return;}
   conn.send("{or:"+orientation+";x:"+tx+";y:"+ty+";b:"+JSON.stringify(newBullets)+"}");
-  bulletsFired = 0;
+  newBullets = new Array();
 }
 
-/*function sendExpl() {
-  if (conn.readyState !== 1) {return;}
-  conn.send("{or:"+ORIENTATION_EXPLODED+";x:"+tx+";y:"+ty+";b:"+bulletsFired+"}");
-  bulletsFired = 0;
-  //conn.send("EXPL");
-}*/
 
 function keyDown(e) {
   var c = e.keyCode;

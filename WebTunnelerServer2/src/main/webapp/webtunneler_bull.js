@@ -35,7 +35,7 @@ function newBullet(cx, cy, orientation) {
 }
 
 
-/*function collides(b, x, y) {
+function collides(b, x, y) {
   var x1 = x, x2 = x;
   var y1 = y, y2 = y;
 
@@ -70,8 +70,8 @@ function newBullet(cx, cy, orientation) {
 	  break;
   }
 
-  return (b[1] >= x1) && (b[1] < x2) && (b[2] >= y1) && (b[2] < y2);
-}*/
+  return (b.x >= x1) && (b.x < x2) && (b.y >= y1) && (b.y < y2);
+}
 
 
 function moveBullet(b) {
@@ -113,9 +113,10 @@ function shootBullets() {
   var b = newBullet(rx, ry, orientation);
   bullets.push(b);
   newBullets.push(b);
-  energy -= BULLET_ENERGY;
+  //energy -= BULLET_ENERGY;
 }
 
+// probably obsolete, do bullet removal as server event - receive, what bullets to remove
 function checkBullets() {
   var beg = true;
   for (var i in bullets) {
@@ -130,14 +131,7 @@ function checkBullets() {
     if (!moveBullet(b)) {if (beg) {enemyBullets.shift();}}
     else if (collides(b, rx, ry)) {
       if (beg) {enemyBullets.shift();}
-      health -= BULLET_DAMAGE;
-      //if (health <= 0) {
-	  //resetPos();
-	  //deaths++;
-	  //exploded = true;
-	  //sendExpl();
-	  //explode();
-      //}
+      //health -= BULLET_DAMAGE;
     } else {beg = false;}
   }
 }

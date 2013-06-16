@@ -56,5 +56,10 @@ public class Bullet {
         }
         return (x >= 0) && (y >= 0) && (x < Const.ARENA_WIDTH) && (y < Const.ARENA_HEIGHT);
     }
+
+    @Override
+    public String toString() {
+        return "B:" + x + "," + y;
+    }
     
 }
