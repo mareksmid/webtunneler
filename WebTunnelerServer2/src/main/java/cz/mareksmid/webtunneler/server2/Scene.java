@@ -163,39 +163,29 @@ public class Scene implements ActionListener {
     public void actionPerformed(ActionEvent ev) {
         Object src = ev.getSource();
         if (src == bulletTimer) {
-            processBullets(bullets1);
-            processBullets(bullets2);
+            processBullets(bullets1, true);
+            processBullets(bullets2, false);
             recharge();
         }
     }
 
-    private void processBullets(Set<Bullet> bullets) {
-        if (!bullets.isEmpty()) System.out.println("1:"+bullets);
+    private void processBullets(Set<Bullet> bullets, boolean first) {
         Iterator<Bullet> iter = bullets.iterator();
         while (iter.hasNext()) {
             Bullet b = iter.next();
             int x = b.x / Const.DIRT_W;
             int y = b.y / Const.DIRT_H;
             
-            System.out.println("#"+b.x+" "+b.y);
-            
-            if (collidesTank(true, createPoint(b.x, b.y))) {
-                hitTank(true);
-                iter.remove();
-            } else if (collidesTank(false, createPoint(b.x, b.y))) {
-                hitTank(false);
+            if (collidesTank(!first, createPoint(b.x, b.y))) {
+                hitTank(!first);
                 iter.remove();
             } else if (dirt[x][y]) {
                 dig(x, y);
                 iter.remove();
             } else {
-                System.out.println(">"+b);
                 if (!b.move()) {iter.remove();}
-                System.out.println(">>"+b);
-                System.out.println(">>>"+bullets);
             }
         }
-        if (!bullets.isEmpty()) System.out.println("2:"+bullets);
     }
     
     private boolean collidesTank(boolean first, Geometry g) {
