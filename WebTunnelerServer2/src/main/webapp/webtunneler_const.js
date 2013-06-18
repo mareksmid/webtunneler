@@ -24,8 +24,8 @@ var ENERGY_BOT_OFFS = 20;
 var ENERGY_WIDTH = 10;
 var SCORE_T_OFFS = 20;
 
-var DIRT_W = 10;
-var DIRT_H = 10;
+var DIRT_W = 20;
+var DIRT_H = 20;
 var DIRT_X_CNT = ARENA_WIDTH / DIRT_W;
 var DIRT_Y_CNT = ARENA_HEIGHT / DIRT_H;
 

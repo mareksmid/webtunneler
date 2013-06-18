@@ -21,10 +21,12 @@ public class UpdatePacket {
     private int ex, ey;
     private Set<Bullet> eb;
     
+    private Set<Integer> brem;
+    private Set<Integer> ebrem;
     private Set<Point> drem;
 
     
-    public UpdatePacket(int x, int y, int h, int e, int eor, int ex, int ey, Set<Bullet> eb, Set<Point> drem) {
+    public UpdatePacket(int x, int y, int h, int e, int eor, int ex, int ey, Set<Bullet> eb, Set<Point> drem, Set<Integer> brem, Set<Integer> ebrem) {
         this.x = x;
         this.y = y;
         this.h = h;
@@ -34,6 +36,8 @@ public class UpdatePacket {
         this.ey = ey;
         this.eb = eb;
         this.drem = drem;
+        this.brem = brem;
+        this.ebrem = ebrem;
     }
     
     public int getX() {
@@ -111,5 +115,20 @@ public class UpdatePacket {
         this.e = e;
     }
 
+    public Set<Integer> getBrem() {
+        return brem;
+    }
+
+    public void setBrem(Set<Integer> brem) {
+        this.brem = brem;
+    }
+
+    public Set<Integer> getEbrem() {
+        return ebrem;
+    }
+
+    public void setEbrem(Set<Integer> ebrem) {
+        this.ebrem = ebrem;
+    }
 
 }

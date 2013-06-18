@@ -11,7 +11,7 @@ var rx = 0, ry = 0;
 var energy = MAX_ENERGY;
 var health = MAX_HEALTH;
 var shooting = false;
-var bullets = new Array();
+var bullets = {};
 var newBullets = new Array();
 var stones = null;
 var dirt = null;
@@ -19,7 +19,7 @@ var dirt = null;
 var eorientation = -1;
 var etx = 0, ety = 0;
 var ebx = 0, eby = 0;
-var enemyBullets = new Array();
+var enemyBullets = {};
 
 var deaths = 0, enemyDeaths = 0;
 
@@ -91,11 +91,22 @@ function processPacket(event) {
   eorientation = data.eor;
   etx = data.ex;
   ety = data.ey;
-  enemyBullets = enemyBullets.concat(data.eb);
+  //enemyBullets = enemyBullets.concat(data.eb);
+  for (var i in data.eb) {
+      var b = data.eb[i];
+      enemyBullets[b.id] = b;
+  }
   
   for (var di in data.drem) {
     var d = data.drem[di];
     dirt[d.x][d.y] = false;
+  }
+  
+  for (var bi in data.brem) {
+      delete bullets[data.brem[bi]];
+  }
+  for (var bi in data.ebrem) {
+      delete enemyBullets[data.ebrem[bi]];
   }
 }
 

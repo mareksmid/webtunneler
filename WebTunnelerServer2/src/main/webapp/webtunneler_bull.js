@@ -1,4 +1,6 @@
 
+var bulletId = 0;
+
 function newBullet(cx, cy, orientation) {
     var posX = cx, posY = cy;
     switch (orientation) {
@@ -31,48 +33,8 @@ function newBullet(cx, cy, orientation) {
 	    posY -= TANK_DIAG;
 	    break;
     }
-    return {or: orientation, x: posX, y: posY};
+    return {id: (bulletId++), or: orientation, x: posX, y: posY};
 }
-
-
-function collides(b, x, y) {
-  var x1 = x, x2 = x;
-  var y1 = y, y2 = y;
-
-  switch (orientation) {
-      case 0:
-      case 4:
-	  x1 -= TANK_W2;
-	  x2 += TANK_W2;
-	  y1 -= TANK_H2;
-	  y2 += TANK_H2;
-	  break;
-      case 1:
-      case 5:
-	  x1 -= TANK_DIAG;
-	  x2 += TANK_DIAG;
-	  y1 -= TANK_DIAG;
-	  y2 += TANK_DIAG;
-	  break;
-      case 2:
-      case 6:
-	  x1 -= TANK_H2;
-	  x2 += TANK_H2;
-	  y1 -= TANK_W2;
-	  y2 += TANK_W2;
-	  break;
-      case 3:
-      case 7:
-	  x1 -= TANK_DIAG;
-	  x2 += TANK_DIAG;
-	  y1 -= TANK_DIAG;
-	  y2 += TANK_DIAG;
-	  break;
-  }
-
-  return (b.x >= x1) && (b.x < x2) && (b.y >= y1) && (b.y < y2);
-}
-
 
 function moveBullet(b) {
   switch (b.or) {
@@ -111,27 +73,18 @@ function moveBullet(b) {
 function shootBullets() {
   if (energy < BULLET_ENERGY) {return;}
   var b = newBullet(rx, ry, orientation);
-  bullets.push(b);
+  //bullets.push(b);
   newBullets.push(b);
-  //energy -= BULLET_ENERGY;
+  bullets[b.id] = b;
 }
 
-// probably obsolete, do bullet removal as server event - receive, what bullets to remove
 function checkBullets() {
-  var beg = true;
   for (var i in bullets) {
     var b = bullets[i];
-    if (!moveBullet(b)) {if (beg) {bullets.shift();}}
-    else if (collides(b, etx, ety)) {if (beg) {bullets.shift();}}
-    else {beg = false;}
+    if (!moveBullet(b)) {delete bullets[i];}
   }
-  beg = true;
   for (var i in enemyBullets) {
     var b = enemyBullets[i];
-    if (!moveBullet(b)) {if (beg) {enemyBullets.shift();}}
-    else if (collides(b, rx, ry)) {
-      if (beg) {enemyBullets.shift();}
-      //health -= BULLET_DAMAGE;
-    } else {beg = false;}
+    if (!moveBullet(b)) {delete enemyBullets[i];}
   }
 }

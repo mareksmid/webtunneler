@@ -23,7 +23,7 @@ import javax.swing.Timer;
  *
  * @author marek
  */
-public class Scene implements ActionListener {
+    public class Scene implements ActionListener {
 
     public static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
 
@@ -44,6 +44,8 @@ public class Scene implements ActionListener {
     private final Set<Point> dirtUpdate1, dirtUpdate2;
     private final Set<Bullet> bullets1, bullets2;
     private final Set<Bullet> bulletsUpdate1, bulletsUpdate2;
+    private final Set<Integer> bulletsRemoved1, bulletsRemoved2;
+    private final Set<Integer> ebulletsRemoved1, ebulletsRemoved2;
     
     private final Timer bulletTimer = new Timer(Const.BULLET_INTERVAL, this);
     
@@ -60,6 +62,10 @@ public class Scene implements ActionListener {
         bullets2 = Collections.synchronizedSet(new HashSet<Bullet>());
         bulletsUpdate1 = Collections.synchronizedSet(new HashSet<Bullet>());
         bulletsUpdate2 = Collections.synchronizedSet(new HashSet<Bullet>());
+        bulletsRemoved1 = new HashSet<Integer>();
+        ebulletsRemoved1 = new HashSet<Integer>();
+        bulletsRemoved2 = new HashSet<Integer>();
+        ebulletsRemoved2 = new HashSet<Integer>();
     }
         
 
@@ -75,7 +81,7 @@ public class Scene implements ActionListener {
                 t2x = x; t2y = y;
             }
         }
-        if (first) {
+        if (first) synchronized(bullets1) {
             for (Bullet b : p.getB()) {
                 if (t1e >= Const.BULLET_ENERGY) {
                     bullets1.add(b);
@@ -83,7 +89,7 @@ public class Scene implements ActionListener {
                     t1e -= Const.BULLET_ENERGY;
                 }
             }
-        } else {
+        } else synchronized(bullets2) {
             for (Bullet b : p.getB()) {
                 if (t2e >= Const.BULLET_ENERGY) {
                     bullets2.add(b);
@@ -94,13 +100,17 @@ public class Scene implements ActionListener {
         }
         UpdatePacket up;
         if (first) synchronized(dirtUpdate1) {
-            up = new UpdatePacket(t1x, t1y, t1h, t1e, or2, t2x, t2y, bulletsUpdate1, new HashSet<Point>(dirtUpdate1));
+            up = new UpdatePacket(t1x, t1y, t1h, t1e, or2, t2x, t2y, bulletsUpdate1, new HashSet<Point>(dirtUpdate1), new HashSet<Integer>(bulletsRemoved1), new HashSet<Integer>(ebulletsRemoved1));
             dirtUpdate1.clear();
             bulletsUpdate1.clear();
+            bulletsRemoved1.clear();
+            ebulletsRemoved1.clear();
         } else synchronized(dirtUpdate2) {
-            up = new UpdatePacket(t2x, t2y, t2h, t2e, or1, t1x, t1y, bulletsUpdate2, new HashSet<Point>(dirtUpdate2));
+            up = new UpdatePacket(t2x, t2y, t2h, t2e, or1, t1x, t1y, bulletsUpdate2, new HashSet<Point>(dirtUpdate2), new HashSet<Integer>(bulletsRemoved2), new HashSet<Integer>(ebulletsRemoved2));
             dirtUpdate2.clear();
             bulletsUpdate2.clear();
+            bulletsRemoved2.clear();
+            ebulletsRemoved2.clear();
         }
         return up;
     }
@@ -149,8 +159,8 @@ public class Scene implements ActionListener {
         }
         dirtUpdate1.clear();
         dirtUpdate2.clear();
-        bullets1.clear();
-        bullets2.clear();
+        synchronized (bullets1) {bullets1.clear();}
+        synchronized (bullets2) {bullets2.clear();}
         t1e = Const.MAX_ENERGY;
         t2e = Const.MAX_ENERGY;
         t1h = Const.MAX_HEALTH;
@@ -163,30 +173,90 @@ public class Scene implements ActionListener {
     public void actionPerformed(ActionEvent ev) {
         Object src = ev.getSource();
         if (src == bulletTimer) {
-            processBullets(bullets1, true);
-            processBullets(bullets2, false);
+            synchronized (bullets1) {
+                processBullets(bullets1, bulletsRemoved1, ebulletsRemoved2, true);
+            }
+            synchronized (bullets2) {
+                processBullets(bullets2, bulletsRemoved2, ebulletsRemoved1, false);
+            }
             recharge();
         }
     }
 
-    private void processBullets(Set<Bullet> bullets, boolean first) {
+    private void processBullets(Set<Bullet> bullets, Set<Integer> bulletsRemoved, Set<Integer> ebulletsRemoved, boolean first) {
         Iterator<Bullet> iter = bullets.iterator();
         while (iter.hasNext()) {
             Bullet b = iter.next();
-            int x = b.x / Const.DIRT_W;
-            int y = b.y / Const.DIRT_H;
             
             if (collidesTank(!first, createPoint(b.x, b.y))) {
                 hitTank(!first);
+                bulletsRemoved.add(b.id);
+                ebulletsRemoved.add(b.id);
                 iter.remove();
-            } else if (dirt[x][y]) {
-                dig(x, y);
+            } else if (!move(b)) {
+                bulletsRemoved.add(b.id);
+                ebulletsRemoved.add(b.id);
                 iter.remove();
-            } else {
-                if (!b.move()) {iter.remove();}
             }
         }
     }
+    
+    public boolean move(Bullet b) {
+        int x = b.x, y = b.y;
+        int dx = 0, dy = 0;
+        switch (b.or) {
+        case 0:
+            y -= Const.BULLET_SHOOT_INCR_RECT;
+            dy = -1;
+            break;
+        case 1:
+            x += Const.BULLET_SHOOT_INCR_DIAG;
+            y -= Const.BULLET_SHOOT_INCR_DIAG;
+            dx = +1; dy = -1;
+            break;
+        case 2:
+            x += Const.BULLET_SHOOT_INCR_RECT;
+            dx = +1;
+            break;
+        case 3:
+            x += Const.BULLET_SHOOT_INCR_DIAG;
+            y += Const.BULLET_SHOOT_INCR_DIAG;
+            dx = +1; dy = +1;
+            break;
+        case 4:
+            y += Const.BULLET_SHOOT_INCR_RECT;
+            dy = +1;
+            break;
+        case 5:
+            x -= Const.BULLET_SHOOT_INCR_DIAG;
+            y += Const.BULLET_SHOOT_INCR_DIAG;
+            dx = -1; dy = +1;
+            break;
+        case 6:
+            x -= Const.BULLET_SHOOT_INCR_RECT;
+            dx = -1;
+            break;
+        case 7:
+            x -= Const.BULLET_SHOOT_INCR_DIAG;
+            y -= Const.BULLET_SHOOT_INCR_DIAG;
+            dx = -1; dy = -1;
+            break;
+        }
+        int tx = b.x / Const.DIRT_W;
+        int ty = b.y / Const.DIRT_H;
+        int ex = x / Const.DIRT_W;
+        int ey = y / Const.DIRT_H;
+        while (((tx-ex)*dx<=0) && ((ty-ey)*dy<=0)) {
+            if ((tx >= 0) && (ty >= 0) && (tx < Const.ARENA_WIDTH/Const.DIRT_W) && (ty < Const.ARENA_HEIGHT/Const.DIRT_H) && dirt[tx][ty]) {
+                dig(tx, ty);
+                return false;
+            }
+            tx += dx; ty += dy;
+        }
+        b.x = x; b.y = y;
+        return (x >= 0) && (y >= 0) && (x < Const.ARENA_WIDTH) && (y < Const.ARENA_HEIGHT);
+    }
+    
     
     private boolean collidesTank(boolean first, Geometry g) {
         Polygon t = Const.TANK_POLYS[first?or1:or2];

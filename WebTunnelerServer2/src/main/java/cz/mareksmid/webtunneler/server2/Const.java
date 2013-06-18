@@ -32,8 +32,8 @@ public class Const {
     public static final int BULLET_SHOOT_INCR_RECT = 20;
     public static final int BULLET_SHOOT_INCR_DIAG = 14;
 
-    public static final int DIRT_W = 10;
-    public static final int DIRT_H = 10;
+    public static final int DIRT_W = 20;
+    public static final int DIRT_H = 20;
     public static final int DIRT_X_CNT = ARENA_WIDTH / DIRT_W;
     public static final int DIRT_Y_CNT = ARENA_HEIGHT / DIRT_H;
     
