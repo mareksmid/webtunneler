@@ -165,6 +165,12 @@ import javax.swing.Timer;
         t2e = Const.MAX_ENERGY;
         t1h = Const.MAX_HEALTH;
         t2h = Const.MAX_HEALTH;
+        
+        t1x = b1x + Const.BASE_WIDTH/2;
+        t1y = b1y + Const.BASE_HEIGHT/2;
+        t2x = b2x + Const.BASE_WIDTH/2;
+        t2y = b2y + Const.BASE_HEIGHT/2;
+        
         exploded = 0;
         bulletTimer.start();
     }
@@ -365,4 +371,41 @@ import javax.swing.Timer;
           if (t2e < Const.MAX_ENERGY) {t2e += Const.ENERGY_INC; if (t2e > Const.MAX_ENERGY) {t2e = Const.MAX_ENERGY;}}
         }
     }
+
+    public int getB1x() {
+        return b1x;
+    }
+
+    public int getB1y() {
+        return b1y;
+    }
+
+    public int getB2x() {
+        return b2x;
+    }
+
+    public int getB2y() {
+        return b2y;
+    }
+
+    public List<Polygon> getStones() {
+        return stones;
+    }
+
+    public int getT1x() {
+        return t1x;
+    }
+
+    public int getT1y() {
+        return t1y;
+    }
+
+    public int getT2x() {
+        return t2x;
+    }
+
+    public int getT2y() {
+        return t2y;
+    }
+    
 }

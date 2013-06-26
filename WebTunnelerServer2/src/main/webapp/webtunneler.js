@@ -130,8 +130,10 @@ function doTimer() {
 function initBoard(data) {
   bx = data.bx;
   by = data.by;
-  tx = rx = bx + BASE_WIDTH/2;
-  ty = ry = by + BASE_HEIGHT/2;
+  tx = rx = data.tx;
+  ty = ry = data.ty;
+  etx = data.etx;
+  ety = data.ety;
 
   ebx = data.ebx;
   eby = data.eby;

@@ -37,9 +37,7 @@ public class SceneGen extends JPanel {
         frm.setVisible(true);
     }
     
-    private int b1x, b1y, b2x, b2y;
     private int width, height;
-    private List<Polygon> stones;
     
     public SceneGen() {
         this(Const.ARENA_WIDTH, Const.ARENA_HEIGHT);
@@ -48,9 +46,38 @@ public class SceneGen extends JPanel {
     public SceneGen(int w, int h) {
         width = w;
         height = h;
-        stones = new ArrayList<Polygon>();
+    }
 
+    /*@Override
+    protected void paintComponent(Graphics g) {
+        Graphics2D g2 = (Graphics2D) g;
         
+        g2.setPaint(Color.RED);
+        for (Polygon p : stones) {
+            g2.draw(p);
+        }
+    }*/
+
+    
+    public ScenePacket[] getScenePackets(Scene scene) {
+        ScenePacket[] sps = new ScenePacket[2];
+        sps[0] = new ScenePacket(scene.getT1x(), scene.getT1y(), scene.getT2x(), scene.getT2y(), scene.getB1x(), scene.getB1y(), scene.getB2x(), scene.getB2y());
+        sps[1] = new ScenePacket(scene.getT2x(), scene.getT2y(), scene.getT1x(), scene.getT1y(), scene.getB2x(), scene.getB2y(), scene.getB1x(), scene.getB1y());
+        
+        Set<PolygonJS> ss = new HashSet<PolygonJS>();
+        for (Polygon s : scene.getStones()) {
+            ss.add(new PolygonJS(s));
+        }
+        sps[0].setStones(ss);
+        sps[1].setStones(ss);
+        
+        return sps;
+    }
+    
+    public Scene generateScene() {
+        int b1x, b1y, b2x, b2y;
+        List<Polygon> stones = new ArrayList<Polygon>();
+
         b1x = (int) (Math.random() * (Const.ARENA_WIDTH-Const.BASE_WIDTH) / Const.DIRT_W) * Const.DIRT_W;
         b1y = (int) (Math.random() * (Const.ARENA_HEIGHT-Const.BASE_HEIGHT) / Const.DIRT_H) * Const.DIRT_H;
         do {
@@ -75,36 +102,11 @@ public class SceneGen extends JPanel {
             } while (intersects);
             stones.add(s);
         }
-    }
 
-    /*@Override
-    protected void paintComponent(Graphics g) {
-        Graphics2D g2 = (Graphics2D) g;
-        
-        g2.setPaint(Color.RED);
-        for (Polygon p : stones) {
-            g2.draw(p);
-        }
-    }*/
-
-    
-    public ScenePacket[] generatePackets() {
-        ScenePacket[] scene = new ScenePacket[2];
-        scene[0] = new ScenePacket(b1x, b1y, b2x, b2y);
-        scene[1] = new ScenePacket(b2x, b2y, b1x, b1y);
-        
-        Set<PolygonJS> ss = new HashSet<PolygonJS>();
-        for (Polygon s : stones) {
-            ss.add(new PolygonJS(s));
-        }
-        scene[0].setStones(ss);
-        scene[1].setStones(ss);
+        Scene scene = new Scene(b1x, b1y, b2x, b2y, stones);
+        scene.init();
         
         return scene;
-    }
-    
-    public Scene generateScene() {
-        return new Scene(b1x, b1y, b2x, b2y, stones);
     }
     
     

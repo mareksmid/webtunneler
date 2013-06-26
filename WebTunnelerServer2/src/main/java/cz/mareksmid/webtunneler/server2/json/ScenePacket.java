@@ -11,19 +11,28 @@ import java.util.Set;
  * @author marek
  */
 public class ScenePacket {
+
+    private String cmd = "SCENE";
+
+    private int tx, ty;
+    private int etx, ety;
+    private int bx, by;
+    private int ebx, eby;
     
-    public ScenePacket(int bx, int by, int ebx, int eby) {
+    private Set<PolygonJS> stones;
+
+    
+    public ScenePacket(int tx, int ty, int etx, int ety, int bx, int by, int ebx, int eby) {
+        this.tx = tx;
+        this.ty = ty;
+        this.etx = etx;
+        this.ety = ety;
         this.bx = bx;
         this.by = by;
         this.ebx = ebx;
         this.eby = eby;
     }
     
-    private String cmd = "SCENE";
-    private int bx, by;
-    private int ebx, eby;
-    
-    private Set<PolygonJS> stones;
     
 
     public int getBx() {
@@ -74,6 +83,36 @@ public class ScenePacket {
         this.stones = stones;
     }
 
-    
-    
+    public int getTx() {
+        return tx;
+    }
+
+    public void setTx(int tx) {
+        this.tx = tx;
+    }
+
+    public int getTy() {
+        return ty;
+    }
+
+    public void setTy(int ty) {
+        this.ty = ty;
+    }
+
+    public int getEtx() {
+        return etx;
+    }
+
+    public void setEtx(int etx) {
+        this.etx = etx;
+    }
+
+    public int getEty() {
+        return ety;
+    }
+
+    public void setEty(int ety) {
+        this.ety = ety;
+    }
+
 }

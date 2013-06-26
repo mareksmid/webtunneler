@@ -21,10 +21,12 @@ class WSWorker {
     private Session first, second = null;
     private String id;
     private Scene scene;
-
+    private SceneGen sg;
+    
     public WSWorker(Session c, String id) {
         first = c;
         this.id = id;
+        sg = new SceneGen();
     }
 
     public void processPacket(PosPacket pp, Session c) {
@@ -72,9 +74,8 @@ class WSWorker {
     }
 
     private void init() {
-
-        SceneGen sg = new SceneGen();
-        ScenePacket[] scenes = sg.generatePackets();
+        scene = sg.generateScene();
+        ScenePacket[] scenes = sg.getScenePackets(scene);
 
         Gson g = new Gson();
         try {
@@ -83,8 +84,6 @@ class WSWorker {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        scene = sg.generateScene();
-        scene.init();
     }
-
+    
 }
