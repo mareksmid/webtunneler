@@ -31,9 +31,9 @@ var DIRT_Y_CNT = ARENA_HEIGHT / DIRT_H;
 
 
 var MAX_HEALTH = 100;
-var BULLET_DAMAGE = 5;
-var HEALTH_INC = 1;
+//var BULLET_DAMAGE = 5;
+//var HEALTH_INC = 1;
 
 var MAX_ENERGY = 100;
-var BULLET_ENERGY = 2;
-var ENERGY_INC = 2;
+var BULLET_ENERGY = 1;
+//var ENERGY_INC = 2;

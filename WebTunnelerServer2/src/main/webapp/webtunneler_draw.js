@@ -82,7 +82,7 @@ function draw() {
     ctx.fillText(""+pressed, 10, 420);
     ctx.fillText(""+orientation+" "+tx+" "+ty+" / "+rx+" "+ry, 10, 435);
     ctx.fillText(""+eorientation+" "+etx+" "+ety, 10, 450);
-    ctx.fillText(""+energy+" "+health+" "+shooting+" "+bullets, 10, 465);
+    ctx.fillText(""+energy+" "+health+" "+shooting, 10, 465);
 }
 
 function drawBase(bcl, bx, by) {

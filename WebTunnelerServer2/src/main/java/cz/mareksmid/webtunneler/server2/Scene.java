@@ -41,6 +41,7 @@ import javax.swing.Timer;
     
     
     private final boolean[][] dirt = new boolean[Const.DIRT_X_CNT][Const.DIRT_Y_CNT];
+    private static final Polygon[][] dirtPoly = new Polygon[Const.DIRT_X_CNT][Const.DIRT_Y_CNT];
     private final Set<Point> dirtUpdate1, dirtUpdate2;
     private final Set<Bullet> bullets1, bullets2;
     private final Set<Bullet> bulletsUpdate1, bulletsUpdate2;
@@ -48,6 +49,20 @@ import javax.swing.Timer;
     private final Set<Integer> ebulletsRemoved1, ebulletsRemoved2;
     
     private final Timer bulletTimer = new Timer(Const.BULLET_INTERVAL, this);
+    
+    static {
+        for (int x = 0; x < Const.DIRT_X_CNT; x++) {
+            for (int y = 0; y < Const.DIRT_Y_CNT; y++) {
+                Coordinate[] dp = {
+                    new Coordinate(x*Const.DIRT_W, y*Const.DIRT_H),
+                    new Coordinate((x+1)*Const.DIRT_W, y*Const.DIRT_H),
+                    new Coordinate((x+1)*Const.DIRT_W, (y+1)*Const.DIRT_H),
+                    new Coordinate(x*Const.DIRT_W, (y+1)*Const.DIRT_H),
+                    new Coordinate(x*Const.DIRT_W, y*Const.DIRT_H)};
+                dirtPoly[x][y] = createPolygon(dp);
+            }
+        }
+    }
     
     public Scene(int b1x, int b1y, int b2x, int b2y, List<Polygon> stones) {
         this.b1x = b1x;
@@ -70,15 +85,19 @@ import javax.swing.Timer;
         
 
     public UpdatePacket update(PosPacket p, boolean first) {
-        int x = p.getX();
-        int y = p.getY();
-        if (first) or1 = p.getOr();
-        else or2 = p.getOr();
-        if (!checkCollisions(x, y, first)) {
+        int[] x = {p.getX(), p.getY()}, ox;
+        if (first) {
+            or1 = p.getOr();
+            ox = new int[] {t1x, t1y};
+        } else {
+            or2 = p.getOr();
+            ox = new int[] {t2x, t2y};
+        }
+        if (!checkCollisions(ox, x, first)) {
             if (first) {
-                t1x = x; t1y = y;
+                t1x = x[0]; t1y = x[1];
             } else {
-                t2x = x; t2y = y;
+                t2x = x[0]; t2y = x[1];
             }
         }
         if (first) synchronized(bullets1) {
@@ -115,12 +134,12 @@ import javax.swing.Timer;
         return up;
     }
 
-    private boolean checkCollisions(int x, int y, boolean first) {
+    private boolean checkCollisions(int[] ox, int[] x, boolean first) {
         boolean c = false;
         Polygon t, et;
         if (first) {t = Const.TANK_POLYS[or1]; et = Const.TANK_POLYS[or2];}
         else {t = Const.TANK_POLYS[or2]; et = Const.TANK_POLYS[or1];}
-        AffineTransformation tr = AffineTransformation.translationInstance(x, y);
+        AffineTransformation tr = AffineTransformation.translationInstance(x[0], x[1]);
         AffineTransformation etr;
         t = (Polygon) tr.transform(t);
         if (first) {etr = AffineTransformation.translationInstance(t2x, t2y);}
@@ -144,6 +163,31 @@ import javax.swing.Timer;
             if (collidesBaseWalls(t, b1x, b1y)) {c = true;}
             else if (collidesBaseWalls(t, b2x, b2y)) {c = true;}
         }
+        
+        if (!c) {
+            int dx = x[0]/Const.DIRT_W, dy = x[1]/Const.DIRT_H;
+            boolean dc = false;
+            for (int i = Math.max(0, dx-2); i < Math.min(Const.DIRT_X_CNT, dx+2); i++) for (int j = Math.max(0, dy-2); j < Math.min(Const.DIRT_Y_CNT, dy+2); j++) {
+                if (dirt[i][j] && t.intersects(dirtPoly[i][j])) {
+                    dc = true;
+                    break;
+                }
+            }
+            if (dc) {
+                x[0] = (ox[0]+x[0])/2;
+                x[1] = (ox[1]+x[1])/2;
+                dx = x[0]/Const.DIRT_W; dy = x[1]/Const.DIRT_H;
+                if (first) {t = Const.TANK_POLYS[or1];} else {t = Const.TANK_POLYS[or2];}
+                tr = AffineTransformation.translationInstance(x[0], x[1]);
+                t = (Polygon) tr.transform(t);
+                for (int i = Math.max(0, dx-2); i < Math.min(Const.DIRT_X_CNT, dx+2); i++) for (int j = Math.max(0, dy-2); j < Math.min(Const.DIRT_Y_CNT, dy+2); j++) {
+                    if (dirt[i][j] && t.intersects(dirtPoly[i][j])) {
+                        dig(i, j);
+                    }
+                }
+            }
+        }
+        
         return c;
     }
 
@@ -193,13 +237,14 @@ import javax.swing.Timer;
         Iterator<Bullet> iter = bullets.iterator();
         while (iter.hasNext()) {
             Bullet b = iter.next();
+            com.vividsolutions.jts.geom.Point p = createPoint(b.x, b.y);
             
-            if (collidesTank(!first, createPoint(b.x, b.y))) {
+            if (collidesTank(!first, p)) {
                 hitTank(!first);
                 bulletsRemoved.add(b.id);
                 ebulletsRemoved.add(b.id);
                 iter.remove();
-            } else if (!move(b)) {
+            } else if (collidesStone(p) || !move(b)) {
                 bulletsRemoved.add(b.id);
                 ebulletsRemoved.add(b.id);
                 iter.remove();
@@ -269,6 +314,13 @@ import javax.swing.Timer;
         AffineTransformation tr = AffineTransformation.translationInstance(first?t1x:t2x, first?t1y:t2y);
         t = (Polygon) tr.transform(t);
         return t.intersects(g);
+    }
+
+    private boolean collidesStone(Geometry g) {
+        for (Polygon s : stones) {
+            if (s.intersects(g)) {return true;}
+        }
+        return false;
     }
     
     private void dig(int x, int y) {

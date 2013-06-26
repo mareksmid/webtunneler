@@ -39,7 +39,7 @@ public class Const {
     
     
     public static final int MAX_ENERGY = 100;
-    public static final int BULLET_ENERGY = 2;
+    public static final int BULLET_ENERGY = 1;
     public static final int ENERGY_INC = 2;
 
     public static final int MAX_HEALTH = 100;
