@@ -2,9 +2,7 @@ package cz.mareksmid.webtunneler.server2;
 
 import java.util.HashMap;
 import java.util.Map;
-import javax.enterprise.context.ApplicationScoped;
 
-@ApplicationScoped
 public class CommBean {
     
     private Map<String,WSWorker> workers;

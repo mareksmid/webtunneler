@@ -4,8 +4,6 @@ import com.google.gson.Gson;
 import cz.mareksmid.webtunneler.server2.json.InitPacket;
 import cz.mareksmid.webtunneler.server2.json.PosPacket;
 
-import javax.inject.Inject;
-
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 import org.slf4j.Logger;
@@ -19,8 +17,7 @@ public class WSListener {
     public static final String INIT_NEW = "NEW";
     public static final String INIT_JOIN = "JOIN";
 
-    @Inject
-    private CommBean commBean;
+    private static CommBean commBean = new CommBean();
 
     @OnMessage
     public void processPacket(String message, Session sess) {
