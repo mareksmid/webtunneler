@@ -5,13 +5,6 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
 import java.io.Serializable;
 
-/**
- * Created with IntelliJ IDEA.
- * User: marek
- * Date: 1/22/13
- * Time: 2:06 PM
- * To change this template use File | Settings | File Templates.
- */
 @ManagedBean(name = "game")
 @SessionScoped
 public class GameBean implements Serializable {

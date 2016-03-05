@@ -2,13 +2,6 @@ package cz.mareksmid.webtunneler.server2.back;
 
 import java.io.Serializable;
 
-/**
- * Created with IntelliJ IDEA.
- * User: marek
- * Date: 1/22/13
- * Time: 1:46 PM
- * To change this template use File | Settings | File Templates.
- */
 public class Game implements Serializable {
 
     private Long id;

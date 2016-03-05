@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package cz.mareksmid.webtunneler.server2;
 
 import com.vividsolutions.jts.geom.*;
@@ -19,11 +15,7 @@ import java.util.*;
 import java.util.List;
 import javax.swing.Timer;
 
-/**
- *
- * @author marek
- */
-    public class Scene implements ActionListener {
+public class Scene implements ActionListener {
 
     public static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
 

@@ -1,15 +1,7 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package cz.mareksmid.webtunneler.server2.json;
 
 import java.util.Set;
 
-/**
- *
- * @author marek
- */
 public class ScenePacket {
 
     private String cmd = "SCENE";

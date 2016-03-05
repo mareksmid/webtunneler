@@ -1,17 +1,9 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package cz.mareksmid.webtunneler.server2.json;
 
 
 import java.awt.Point;
 import java.util.Set;
 
-/**
- *
- * @author marek
- */
 public class UpdatePacket {
 
     private int x, y;

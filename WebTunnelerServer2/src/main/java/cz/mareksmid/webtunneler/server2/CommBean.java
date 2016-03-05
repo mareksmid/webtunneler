@@ -1,17 +1,9 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package cz.mareksmid.webtunneler.server2;
 
 import java.util.HashMap;
 import java.util.Map;
 import javax.enterprise.context.ApplicationScoped;
 
-/**
- *
- * @author marek
- */
 @ApplicationScoped
 public class CommBean {
     
@@ -19,8 +11,8 @@ public class CommBean {
     private Map<String, WSWorker> workersById;
 
     public CommBean() {
-        workers = new HashMap<String, WSWorker>();
-        workersById = new HashMap<String, WSWorker>();
+        workers = new HashMap<>();
+        workersById = new HashMap<>();
     }
 
     public WSWorker getWorker(String c) {

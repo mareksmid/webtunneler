@@ -5,13 +5,6 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.util.AffineTransformation;
 
-/**
- * Created with IntelliJ IDEA.
- * User: marek
- * Date: 4/1/13
- * Time: 6:18 PM
- * To change this template use File | Settings | File Templates.
- */
 public class Const {
 
     public static final int BULLET_INTERVAL = 40;

@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package cz.mareksmid.webtunneler.server2;
 
 import com.google.gson.Gson;
@@ -11,10 +6,6 @@ import cz.mareksmid.webtunneler.server2.json.ScenePacket;
 import cz.mareksmid.webtunneler.server2.json.PosPacket;
 import javax.websocket.Session;
 
-/**
- *
- * @author marek
- */
 class WSWorker {
     
     private boolean assigned = false;

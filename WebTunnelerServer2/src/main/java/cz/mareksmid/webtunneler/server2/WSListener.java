@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package cz.mareksmid.webtunneler.server2;
 
 import com.google.gson.Gson;
@@ -16,10 +11,6 @@ import javax.websocket.server.ServerEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- * @author marek
- */
 @ServerEndpoint(value="/wts")
 public class WSListener {
     

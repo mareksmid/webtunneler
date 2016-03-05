@@ -1,13 +1,5 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package cz.mareksmid.webtunneler.server2.json;
 
-/**
- *
- * @author marek
- */
 public class InitPacket {
     
     
@@ -31,7 +23,5 @@ public class InitPacket {
     public void setCmd(String cmd) {
         this.cmd = cmd;
     }
-
-    
     
 }
