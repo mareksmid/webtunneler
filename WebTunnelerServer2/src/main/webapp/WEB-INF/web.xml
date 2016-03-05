@@ -104,9 +104,14 @@
     <security-constraint>
         <display-name>all</display-name>
         <web-resource-collection>
-            <web-resource-name>allres</web-resource-name>
+            <web-resource-name>index</web-resource-name>
             <description/>
-            <url-pattern>/*</url-pattern>
+            <url-pattern>/index.xhtml</url-pattern>
+        </web-resource-collection>
+        <web-resource-collection>
+            <web-resource-name>game-page</web-resource-name>
+            <description/>
+            <url-pattern>/webunneler.xhtml</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <description/>

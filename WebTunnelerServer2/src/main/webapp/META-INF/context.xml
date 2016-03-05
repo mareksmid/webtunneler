@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context antiJARLocking="true" path="/wt">
+
+    <Realm className="org.apache.catalina.realm.MemoryRealm" pathname="conf/wt-users.xml"/>
+
+</Context>
