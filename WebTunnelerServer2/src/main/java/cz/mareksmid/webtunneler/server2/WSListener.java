@@ -9,7 +9,7 @@ import javax.websocket.server.ServerEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@ServerEndpoint(value="/wts")
+@ServerEndpoint(value="/wts", encoders = WSListener.StringEncoder.class)
 public class WSListener {
     
     private static final Logger log = LoggerFactory.getLogger(WSListener.class);
@@ -77,6 +77,21 @@ public class WSListener {
     public void processError(Session session, Throwable error) {
         log.warn("Socket error: "+error+" from session "+session);
         error.printStackTrace();
+    }
+
+    public static class StringEncoder implements Encoder.Text<String> {
+        @Override
+        public String encode(String message) {
+            return message;
+        }
+
+        @Override
+        public void init(EndpointConfig config) {
+        }
+
+        @Override
+        public void destroy() {
+        }
     }
 
 }
