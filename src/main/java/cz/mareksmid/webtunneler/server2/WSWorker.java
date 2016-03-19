@@ -15,8 +15,6 @@ class WSWorker {
     private String id;
     private Scene scene;
 
-    private static ObjectMapper mapper = new ObjectMapper();
-
     public WSWorker(Session c, String id) {
         first = c;
         this.id = id;
@@ -28,9 +26,9 @@ class WSWorker {
         synchronized(scene) {
             try {
                 if (c.equals(first)) {
-                    first.getBasicRemote().sendObject(mapper.writeValueAsString(scene.update(pp, true)));
+                    first.getBasicRemote().sendObject(scene.update(pp, true));
                 } else {
-                    second.getBasicRemote().sendObject(mapper.writeValueAsString(scene.update(pp, false)));
+                    second.getBasicRemote().sendObject(scene.update(pp, false));
                 }
                 
                 if (scene.isExploded() != 0) {
@@ -41,11 +39,11 @@ class WSWorker {
                     ipe.setId(id);
                     ipe.setCmd("EEXPL");
                     if (scene.isExploded() == 1) {
-                        first.getBasicRemote().sendObject(mapper.writeValueAsString(ip));
-                        second.getBasicRemote().sendObject(mapper.writeValueAsString(ipe));
+                        first.getBasicRemote().sendObject(ip);
+                        second.getBasicRemote().sendObject(ipe);
                     } else if (scene.isExploded() == 2) {
-                        first.getBasicRemote().sendObject(mapper.writeValueAsString(ipe));
-                        second.getBasicRemote().sendObject(mapper.writeValueAsString(ip));
+                        first.getBasicRemote().sendObject(ipe);
+                        second.getBasicRemote().sendObject(ip);
                     }
                     init();
                 }
@@ -67,8 +65,8 @@ class WSWorker {
         ScenePacket[] scenes = sg.getScenePackets(scene);
 
         try {
-            first.getBasicRemote().sendObject(mapper.writeValueAsString(scenes[0]));
-            second.getBasicRemote().sendObject(mapper.writeValueAsString(scenes[1]));
+            first.getBasicRemote().sendObject(scenes[0]);
+            second.getBasicRemote().sendObject(scenes[1]);
         } catch (Exception ex) {
             ex.printStackTrace();
         }

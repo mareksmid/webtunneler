@@ -1,67 +1,70 @@
 package cz.mareksmid.webtunneler.server2;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import cz.mareksmid.webtunneler.server2.json.InitPacket;
-import cz.mareksmid.webtunneler.server2.json.PosPacket;
 
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
+
+import cz.mareksmid.webtunneler.server2.json.InitPacket;
+import cz.mareksmid.webtunneler.server2.json.PosPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-@ServerEndpoint(value="/wts", encoders = WSListener.StringEncoder.class)
+@ServerEndpoint(value="/wts", encoders = WSListener.JsonEncoder.class)
 public class WSListener {
     
     private static final Logger log = LoggerFactory.getLogger(WSListener.class);
+    private static ObjectMapper mapper = new ObjectMapper();
 
     public static final String INIT_NEW = "NEW";
     public static final String INIT_JOIN = "JOIN";
 
     private static CommBean commBean = new CommBean();
-    private static ObjectMapper mapper = new ObjectMapper();
 
     @OnMessage
-    public void processPacket(String message, Session sess) {
+    public void processPacket(String msg, Session sess) {
         String  c = sess.getId();
-
-        String s = message;
         WSWorker w = commBean.getWorker(c);
+        if (w == null) {
+            commBean.putWorker(c, createWorker(msg, sess));
+        } else {
+            w.processPacket(decode(msg, PosPacket.class), sess);
+        }
 
-        try {
+    }
+
+    private WSWorker createWorker(String msg, Session sess) {
+        InitPacket i = decode(msg, InitPacket.class);
+        if (INIT_NEW.equals(i.getCmd())) {
+            log.info("new worker for " + i.getId());
+            WSWorker w = new WSWorker(sess, i.getId());
+            commBean.putWorkersById(i.getId(), w);
+            return w;
+        } else if (INIT_JOIN.equals(i.getCmd())) {
+            WSWorker w = commBean.getWorkersById(i.getId());
             if (w == null) {
-                InitPacket i = mapper.readValue(s, InitPacket.class);
-
-                if (INIT_NEW.equals(i.getCmd())) {
-                    log.info("new worker for "+i.getId());
-                    w = new WSWorker(sess, i.getId());
-                    commBean.putWorkersById(i.getId(), w);
-
-                } else if (INIT_JOIN.equals(i.getCmd())) {
-                    w = commBean.getWorkersById(i.getId());
-                    if (w == null) {
-                        log.warn("Worker for second does not exist: "+i.getId());
-                        return;
-                    }
-                    log.info("joined worker for "+i.getId());
-                    w.setSecond(sess);
-
-                } else {
-                    log.warn("Unknown init packet: "+s);
-                    return;
-                }
-
-                commBean.putWorker(c, w);
-            } else {
-                PosPacket p = mapper.readValue(s, PosPacket.class);
-                w.processPacket(p, sess);
+                log.warn("Worker for second does not exist: " + i.getId());
+                return null;
             }
-        } catch (IOException ex) {
-            log.warn("Failed to parse packet", ex);
+            log.info("joined worker for " + i.getId());
+            w.setSecond(sess);
+            return w;
+        } else {
+            log.warn("Unknown init packet: " + i);
+            throw new RuntimeException("Unknown init packet: " + i);
         }
     }
 
+    private <T> T decode(String msg, Class<T> type) {
+        try {
+            return mapper.readValue(msg, type);
+        } catch (IOException ex) {
+            throw new RuntimeException("Cannot decode packet: " + msg, ex);
+        }
+    }
 
     @OnOpen
     public void processOpened(Session session) {
@@ -78,12 +81,7 @@ public class WSListener {
         error.printStackTrace();
     }
 
-    public static class StringEncoder implements Encoder.Text<String> {
-        @Override
-        public String encode(String message) {
-            return message;
-        }
-
+    public static class JsonEncoder implements Encoder.Text<Object> {
         @Override
         public void init(EndpointConfig config) {
         }
@@ -91,6 +89,14 @@ public class WSListener {
         @Override
         public void destroy() {
         }
-    }
 
+        @Override
+        public String encode(Object object) throws EncodeException {
+            try {
+                return mapper.writeValueAsString(object);
+            } catch (JsonProcessingException ex) {
+                throw new EncodeException(object, "Cannot encode into JSON", ex);
+            }
+        }
+    }
 }

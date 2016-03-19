@@ -2,16 +2,12 @@ package cz.mareksmid.webtunneler.server2;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class CommBean {
     
-    private Map<String,WSWorker> workers;
-    private Map<String, WSWorker> workersById;
-
-    public CommBean() {
-        workers = new HashMap<>();
-        workersById = new HashMap<>();
-    }
+    private final Map<String,WSWorker> workers = new ConcurrentHashMap<>();
+    private final Map<String, WSWorker> workersById = new ConcurrentHashMap<>();
 
     public WSWorker getWorker(String c) {
         return workers.get(c);
