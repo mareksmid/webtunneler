@@ -19,5 +19,8 @@ public class PolygonJS {
             points.add(new Point((int) Math.round(pt.getX()), (int) Math.round(pt.getY())));
         }
     }
-    
+
+    public List<Point> getPoints() {
+        return points;
+    }
 }
