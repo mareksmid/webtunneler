@@ -3,8 +3,7 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core"
-      xmlns:ui="http://java.sun.com/jsf/facelets"
-      xmlns:c="http://java.sun.com/jsp/jstl/core">
+      xmlns:ui="http://java.sun.com/jsf/facelets">
 <h:head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=620" />
@@ -21,23 +20,20 @@
     <script type="text/javascript" src="webtunneler.js"></script>
 </h:head>
 <h:body onkeydown="return keyDown(event);" onkeyup="return keyUp(event);" onload="init();">
-  <section id="wrapper">
     <header>
         <h1>Web Tunneler</h1>
         <h2><h:outputText value="#{game.game.name} by #{game.game.author}"/></h2>
     </header>
     <article>
 
-      <canvas id="board" width="640" height="480" style="border: 1px solid black;">
-	     sorry...
+      <canvas id="board" width="640" height="480">
+	     Sorry, your browser does not support HTML5.
       </canvas>
 
-      <audio id="expl" src="/wt/img/explosion-02.wav" preload="auto"></audio>
+      <audio id="expl" src="img/explosion-02.wav" preload="auto"/>
 
     </article>
 
     <footer>Marek</footer> 
-</section>
-
 </h:body>
 </html>
