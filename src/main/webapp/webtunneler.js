@@ -195,7 +195,7 @@ function updatePos() {
 
 
 function sendInit(id, cmd) {
-    var s = "{id: "+id+"; cmd: '"+cmd+"'}";
+    var s = JSON.stringify({id:id, cmd:cmd});
     console.log('sending init: '+s);
     var res = conn.send(s);
     console.log('sent init: '+res);
@@ -203,7 +203,7 @@ function sendInit(id, cmd) {
 
 function sendPos() {
   if (conn.readyState !== 1) {return;}
-  conn.send("{or:"+orientation+";x:"+tx+";y:"+ty+";b:"+JSON.stringify(newBullets)+"}");
+  conn.send(JSON.stringify({or:orientation, x:tx, y:ty, b:newBullets}));
   newBullets = new Array();
 }
 
