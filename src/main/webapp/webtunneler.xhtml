@@ -10,16 +10,17 @@
     <title>WebTunneler</title>
     <link rel="stylesheet" href="resources/stylesheet.css" type="text/css" />
     <script type="text/javascript">
-        var gameId = #{game.game.id};
-        var newGame = #{game.joinedGame ? 'false' : 'true'};
-        var SERVER = '#{facesContext.externalContext.requestServerName}:#{facesContext.externalContext.requestServerPort}';
+        var wt;
+        function webTunnelerInit() {
+            wt = new WebTunneler('board', 'expl', #{game.joinedGame ? 'false' : 'true'}, #{game.game.id}, '#{facesContext.externalContext.requestServerName}:#{facesContext.externalContext.requestServerPort}');
+        }
     </script>
+    <script type="text/javascript" src="webtunneler.js"></script>
     <script type="text/javascript" src="webtunneler_const.js"></script>
     <script type="text/javascript" src="webtunneler_draw.js"></script>
     <script type="text/javascript" src="webtunneler_bull.js"></script>
-    <script type="text/javascript" src="webtunneler.js"></script>
 </h:head>
-<h:body onkeydown="return keyDown(event);" onkeyup="return keyUp(event);" onload="init();">
+<h:body onkeydown="return wt.keyDown(event);" onkeyup="return wt.keyUp(event);" onload="webTunnelerInit();">
     <header>
         <h1>Web Tunneler</h1>
         <h2><h:outputText value="#{game.game.name} by #{game.game.author}"/></h2>

@@ -1,232 +1,227 @@
+"use strict";
 
-var conn = { };
-var board;
-var ctx;
+var WebTunneler = function(boardId, explodeId, newGame, gameId, server) {
+    this.newGame = newGame;
+    this.gameId = gameId;
+    this.server = server;
+    this.conn = {};
+    this.board = document.getElementById(boardId);
+    this.ctx = board.getContext('2d');
 
-var orientation = 0;
-var tx = 0, ty = 0;
-var ax = 0, ay = 0;
-var bx = 0, by = 0;
-var rx = 0, ry = 0;
-var energy = MAX_ENERGY;
-var health = MAX_HEALTH;
-var shooting = false;
-var bullets = {};
-var newBullets = new Array();
-var stones = null;
-var dirt = null;
+    this.orientation = 0;
+    this.tx = 0; this.ty = 0;
+    this.ax = 0; this.ay = 0;
+    this.bx = 0; this.by = 0;
+    this.rx = 0; this.ry = 0;
+    this.energy = Consts.MAX_ENERGY;
+    this.health = Consts.MAX_HEALTH;
+    this.shooting = false;
+    this.bullets = {};
+    this.newBullets = [];
+    this.stones = null;
+    this.dirt = null;
 
-var eorientation = -1;
-var etx = 0, ety = 0;
-var ebx = 0, eby = 0;
-var enemyBullets = {};
+    this.eorientation = -1;
+    this.etx = 0; this.ety = 0;
+    this.ebx = 0; this.eby = 0;
+    this.enemyBullets = {};
 
-var deaths = 0, enemyDeaths = 0;
+    this.deaths = 0; this.enemyDeaths = 0;
 
+    this.pressed = 0;
+    this.timer = null;
+    this.shootCtr = 0;
+    this.bulletId = 0;
 
-var pressed = 0;
-var timer = null;
-var shootCtr = 0;
+    this.tankImg = new Image();
+    this.enemyTankImg = new Image();
+    this.tankImg.src= '/wt/img/tank.png';
+    this.enemyTankImg.src= '/wt/img/enemytank.png';
+    this.explAudio = document.getElementById(explodeId);
 
-var tankImg, enemyTankImg;
-var explAudio;
-
-
-function init() {
-  board =  document.getElementById('board');
-  ctx = board.getContext('2d');
-  tankImg = new Image();
-  enemyTankImg = new Image();
-  tankImg.src= '/wt/img/tank.png';
-  enemyTankImg.src= '/wt/img/enemytank.png';
-  explAudio = document.getElementById('expl');
-
-  if (window.WebSocket === undefined) {
-    alert('Sockets not supported');
-  } else {
-    openConnection();
-  }
-}
-
-function openConnection() {
-  if (conn.readyState === undefined || conn.readyState > 1) {
-    conn = new WebSocket('ws://'+SERVER+'/wt/wts');
-    conn.onopen = function () {
-      console.log('Socket open');
-      var cmd = newGame ? 'NEW' : 'JOIN';
-      sendInit(gameId, cmd);
-      //doTimer();
-      timer = setInterval(doTimer, TIMER_INT);
-    };
-
-    conn.onmessage = processPacket;
-  
-    conn.onclose = function (event) {
-      console.log('Socket closed');
-    };
-  }
-}
-
-function processPacket(event) {
-  var data = JSON.parse(event.data);
-  if (data.cmd == 'SCENE') {
-    initBoard(data);
-    return;
-  }
-  if (data.cmd == 'EEXPL') {
-    enemyDeaths++;
-    explode();
-    return;
-  }
-  if (data.cmd == 'EXPL') {
-    deaths++;
-    explode();
-    return;
-  }
-  tx = rx = data.x;
-  ty = ry = data.y;
-  energy = data.e;
-  health = data.h;
-
-  eorientation = data.eor;
-  etx = data.ex;
-  ety = data.ey;
-  //enemyBullets = enemyBullets.concat(data.eb);
-  for (var i in data.eb) {
-      var b = data.eb[i];
-      enemyBullets[b.id] = b;
-  }
-  
-  for (var di in data.drem) {
-    var d = data.drem[di];
-    dirt[d.x][d.y] = false;
-  }
-  
-  for (var bi in data.brem) {
-      delete bullets[data.brem[bi]];
-  }
-  for (var bi in data.ebrem) {
-      delete enemyBullets[data.ebrem[bi]];
-  }
-}
-
-function doTimer() {
-  updatePos();
-  
-  checkBullets();
-  if (shooting) {
-    if (shootCtr == 0) {
-      shootBullets();
-      shootCtr = SHOOT_DIV;
+    if (window.WebSocket === undefined) {
+        alert('Sockets not supported');
     } else {
-      shootCtr--;
+        this.openConnection();
     }
-  }
-  
-  sendPos();
-  draw();
-}
+};
 
-function initBoard(data) {
-  bx = data.bx;
-  by = data.by;
-  tx = rx = data.tx;
-  ty = ry = data.ty;
-  etx = data.etx;
-  ety = data.ety;
+WebTunneler.prototype.openConnection = function() {
+    if (this.conn.readyState === undefined || conn.readyState > 1) {
+        this.conn = new WebSocket('ws://'+this.server+'/wt/wts');
+        this.conn.onopen = function () {
+            console.log('Socket open');
+            var cmd = this.newGame ? 'NEW' : 'JOIN';
+            this.sendInit(this.gameId, cmd);
+            //doTimer();
+            this.timer = setInterval(this.doTimer.bind(this), Consts.TIMER_INT);
+        }.bind(this);
 
-  ebx = data.ebx;
-  eby = data.eby;
-  
-  health = MAX_HEALTH;
-  energy = MAX_ENERGY;
+        this.conn.onmessage = this.processPacket.bind(this);
 
-  stones = data.stones;
-
-  dirt = new Array();
-  for (var x = 0; x < DIRT_X_CNT; x++) {
-    dirt[x] = new Array();
-    for (var y = 0; y < DIRT_Y_CNT; y++) {
-      dirt[x][y] = true;
+        this.conn.onclose = function (event) {
+            console.log('Socket closed');
+        };
     }
-  }
-}
+};
 
-function updatePos() {
-  switch (pressed) {
-    case 0:
-      break;
-    case 1:
-      orientation = 6;
-      tx -= INCR_RECT;
-      break;
-    case 2:
-      orientation = 0;
-      ty -= INCR_RECT;
-      break;
-    case 3:
-      orientation = 7;
-      tx -= INCR_DIAG; ty -= INCR_DIAG;
-      break;
-    case 4:
-      orientation = 2;
-      tx += INCR_RECT;
-      break;
-    case 6:
-      orientation = 1;
-      tx += INCR_DIAG; ty -= INCR_DIAG;
-      break;
-    case 8:
-      orientation = 4;
-      ty += INCR_RECT;
-      break;
-    case 9:
-      orientation = 5;
-      tx -= INCR_DIAG; ty += INCR_DIAG;
-      break;
-    case 12:
-      orientation = 3;
-      tx += INCR_DIAG; ty += INCR_DIAG;
-      break;
-  }
-  if (tx < TANK_R) {tx = TANK_R;} else if (tx > ARENA_WIDTH-TANK_R) {tx = ARENA_WIDTH-TANK_R;}
-  if (ty < TANK_R) {ty = TANK_R;} else if (ty > ARENA_HEIGHT-TANK_R) {ty = ARENA_HEIGHT-TANK_R;}
-}
+WebTunneler.prototype.processPacket = function(event) {
+    var data = JSON.parse(event.data);
+    if (data.cmd == 'SCENE') {
+        this.initBoard(data);
+        return;
+    }
+    if (data.cmd == 'EEXPL') {
+        this.enemyDeaths++;
+        this.explAudio.play();
+        return;
+    }
+    if (data.cmd == 'EXPL') {
+        this.deaths++;
+        this.explAudio.play();
+        return;
+    }
+    this.tx = this.rx = data.x;
+    this.ty = this.ry = data.y;
+    this.energy = data.e;
+    this.health = data.h;
+
+    this.eorientation = data.eor;
+    this.etx = data.ex;
+    this.ety = data.ey;
+    //enemyBullets = enemyBullets.concat(data.eb);
+    for (var i in data.eb) {
+        var b = data.eb[i];
+        this.enemyBullets[b.id] = b;
+    }
+
+    for (var di in data.drem) {
+        var d = data.drem[di];
+        this.dirt[d.x][d.y] = false;
+    }
+
+    for (var bi in data.brem) {
+        delete this.bullets[data.brem[bi]];
+    }
+    for (var ebi in data.ebrem) {
+        delete this.enemyBullets[data.ebrem[ebi]];
+    }
+};
+
+WebTunneler.prototype.doTimer = function() {
+    this.updatePos();
+
+    this.checkBullets();
+    if (this.shooting) {
+        if (this.shootCtr == 0) {
+            this.shootBullets();
+            this.shootCtr = Consts.SHOOT_DIV;
+        } else {
+            this.shootCtr--;
+        }
+    }
+
+    this.sendPos();
+    this.draw();
+};
+
+WebTunneler.prototype.initBoard = function(data) {
+    this.bx = data.bx;
+    this.by = data.by;
+    this.tx = this.rx = data.tx;
+    this.ty = this.ry = data.ty;
+    this.etx = data.etx;
+    this.ety = data.ety;
+
+    this.ebx = data.ebx;
+    this.eby = data.eby;
+
+    this.health = Consts.MAX_HEALTH;
+    this.energy = Consts.MAX_ENERGY;
+
+    this.stones = data.stones;
+
+    this.dirt = [];
+    for (var x = 0; x < Consts.DIRT_X_CNT; x++) {
+        this.dirt[x] = [];
+        for (var y = 0; y < Consts.DIRT_Y_CNT; y++) {
+            this.dirt[x][y] = true;
+        }
+    }
+};
+
+WebTunneler.prototype.updatePos = function() {
+    switch (this.pressed) {
+        case 0:
+            break;
+        case 1:
+            this.orientation = 6;
+            this.tx -= Consts.INCR_RECT;
+            this.tx -= Consts.INCR_RECT;
+            break;
+        case 2:
+            this.orientation = 0;
+            this.ty -= Consts.INCR_RECT;
+            break;
+        case 3:
+            this.orientation = 7;
+            this.tx -= Consts.INCR_DIAG; this.ty -= Consts.INCR_DIAG;
+            break;
+        case 4:
+            this.orientation = 2;
+            this.tx += Consts.INCR_RECT;
+            break;
+        case 6:
+            this.orientation = 1;
+            this.tx += Consts.INCR_DIAG; this.ty -= Consts.INCR_DIAG;
+            break;
+        case 8:
+            this.orientation = 4;
+            this.ty += Consts.INCR_RECT;
+            break;
+        case 9:
+            this.orientation = 5;
+            this.tx -= Consts.INCR_DIAG; this.ty += Consts.INCR_DIAG;
+            break;
+        case 12:
+            this.orientation = 3;
+            this.tx += Consts.INCR_DIAG; this.ty += Consts.INCR_DIAG;
+            break;
+    }
+    if (this.tx < Consts.TANK_R) {this.tx = Consts.TANK_R;} else if (this.tx > Consts.ARENA_WIDTH-Consts.TANK_R) {this.tx = Consts.ARENA_WIDTH-Consts.TANK_R;}
+    if (this.ty < Consts.TANK_R) {this.ty = Consts.TANK_R;} else if (this.ty > Consts.ARENA_HEIGHT-Consts.TANK_R) {this.ty = Consts.ARENA_HEIGHT-Consts.TANK_R;}
+};
 
 
-function sendInit(id, cmd) {
+WebTunneler.prototype.sendInit = function(id, cmd) {
     var s = JSON.stringify({id:id, cmd:cmd});
     console.log('sending init: '+s);
-    var res = conn.send(s);
+    var res = this.conn.send(s);
     console.log('sent init: '+res);
-}
+};
 
-function sendPos() {
-  if (conn.readyState !== 1) {return;}
-  conn.send(JSON.stringify({or:orientation, x:tx, y:ty, b:newBullets}));
-  newBullets = new Array();
-}
+WebTunneler.prototype.sendPos = function() {
+    if (this.conn.readyState !== 1) {return;}
+    this.conn.send(JSON.stringify({or:this.orientation, x:this.tx, y:this.ty, b:this.newBullets}));
+    this.newBullets = [];
+};
 
 
-function keyDown(e) {
-  var c = e.keyCode;
-  if ((c >= 37) && (c <= 40)) {
-    pressed |= 1 << (c-37);
-  } else if (c == 17) {
-    if (!shooting) {shootCtr = 0;}
-    shooting = true;
-  }
-}
+WebTunneler.prototype.keyDown = function(e) {
+    var c = e.keyCode;
+    if ((c >= 37) && (c <= 40)) {
+        this.pressed |= 1 << (c-37);
+    } else if (c == 17) {
+        if (!this.shooting) {this.shootCtr = 0;}
+        this.shooting = true;
+    }
+};
 
-function keyUp(e) {
-  var c = e.keyCode;
-  if ((c >= 37) && (c <= 40)) {
-    pressed &= ~(1 << (c-37));
-  } else if (c == 17) {
-    shooting = false;
-  }
-}
-
-function explode() {
-  explAudio.play();
-}
+WebTunneler.prototype.keyUp = function(e) {
+    var c = e.keyCode;
+    if ((c >= 37) && (c <= 40)) {
+        this.pressed &= ~(1 << (c-37));
+    } else if (c == 17) {
+        this.shooting = false;
+    }
+};
