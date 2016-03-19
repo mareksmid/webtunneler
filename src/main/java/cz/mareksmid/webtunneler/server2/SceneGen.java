@@ -13,16 +13,14 @@ import java.util.Set;
 public class SceneGen {
     
     public ScenePacket[] getScenePackets(Scene scene) {
-        ScenePacket[] sps = new ScenePacket[2];
-        sps[0] = new ScenePacket(scene.getT1x(), scene.getT1y(), scene.getT2x(), scene.getT2y(), scene.getB1x(), scene.getB1y(), scene.getB2x(), scene.getB2y());
-        sps[1] = new ScenePacket(scene.getT2x(), scene.getT2y(), scene.getT1x(), scene.getT1y(), scene.getB2x(), scene.getB2y(), scene.getB1x(), scene.getB1y());
-        
         Set<PolygonJS> ss = new HashSet<>();
         for (Polygon s : scene.getStones()) {
             ss.add(new PolygonJS(s));
         }
-        sps[0].setStones(ss);
-        sps[1].setStones(ss);
+
+        ScenePacket[] sps = new ScenePacket[2];
+        sps[0] = new ScenePacket(scene.getT1x(), scene.getT1y(), scene.getT2x(), scene.getT2y(), scene.getB1x(), scene.getB1y(), scene.getB2x(), scene.getB2y(), ss);
+        sps[1] = new ScenePacket(scene.getT2x(), scene.getT2y(), scene.getT1x(), scene.getT1y(), scene.getB2x(), scene.getB2y(), scene.getB1x(), scene.getB1y(), ss);
         
         return sps;
     }

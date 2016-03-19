@@ -32,12 +32,8 @@ class WSWorker {
                 }
                 
                 if (scene.isExploded() != 0) {
-                    InitPacket ip = new InitPacket();
-                    ip.setId(id);
-                    ip.setCmd("EXPL");
-                    InitPacket ipe = new InitPacket();
-                    ipe.setId(id);
-                    ipe.setCmd("EEXPL");
+                    InitPacket ip = new InitPacket(id, "EXPL");
+                    InitPacket ipe = new InitPacket(id, "EEXPL");
                     if (scene.isExploded() == 1) {
                         first.getBasicRemote().sendObject(ip);
                         second.getBasicRemote().sendObject(ipe);

@@ -1,11 +1,14 @@
 package cz.mareksmid.webtunneler.server2.json;
 
+/**
+ * Mutable!
+ */
 public class Bullet {
 
-    public int or;
-    public int x, y;
-    public int id;
-    
+    private final int or;
+    private final int id;
+    private int x, y;
+
     
     public Bullet(int id, int or, int x, int y) {
         this.id = id;
@@ -14,9 +17,29 @@ public class Bullet {
         this.y = y;
     }
 
+    public int getOr() {
+        return or;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public int getId() {
+        return id;
+    }
+
     @Override
     public String toString() {
         return "B:" + x + "," + y;
     }
-    
+
+    public void moveTo(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
 }

@@ -229,25 +229,25 @@ public class Scene implements ActionListener {
         Iterator<Bullet> iter = bullets.iterator();
         while (iter.hasNext()) {
             Bullet b = iter.next();
-            com.vividsolutions.jts.geom.Point p = createPoint(b.x, b.y);
+            com.vividsolutions.jts.geom.Point p = createPoint(b.getX(), b.getY());
             
             if (collidesTank(!first, p)) {
                 hitTank(!first);
-                bulletsRemoved.add(b.id);
-                ebulletsRemoved.add(b.id);
+                bulletsRemoved.add(b.getId());
+                ebulletsRemoved.add(b.getId());
                 iter.remove();
             } else if (collidesStone(p) || !move(b)) {
-                bulletsRemoved.add(b.id);
-                ebulletsRemoved.add(b.id);
+                bulletsRemoved.add(b.getId());
+                ebulletsRemoved.add(b.getId());
                 iter.remove();
             }
         }
     }
     
     public boolean move(Bullet b) {
-        int x = b.x, y = b.y;
+        int x = b.getX(), y = b.getY();
         int dx = 0, dy = 0;
-        switch (b.or) {
+        switch (b.getOr()) {
         case 0:
             y -= Const.BULLET_SHOOT_INCR_RECT;
             dy = -1;
@@ -285,8 +285,8 @@ public class Scene implements ActionListener {
             dx = -1; dy = -1;
             break;
         }
-        int tx = b.x / Const.DIRT_W;
-        int ty = b.y / Const.DIRT_H;
+        int tx = b.getX() / Const.DIRT_W;
+        int ty = b.getY() / Const.DIRT_H;
         int ex = x / Const.DIRT_W;
         int ey = y / Const.DIRT_H;
         while (((tx-ex)*dx<=0) && ((ty-ey)*dy<=0)) {
@@ -296,7 +296,7 @@ public class Scene implements ActionListener {
             }
             tx += dx; ty += dy;
         }
-        b.x = x; b.y = y;
+        b.moveTo(x, y);
         return (x >= 0) && (y >= 0) && (x < Const.ARENA_WIDTH) && (y < Const.ARENA_HEIGHT);
     }
     
