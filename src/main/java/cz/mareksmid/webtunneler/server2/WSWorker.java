@@ -1,6 +1,5 @@
 package cz.mareksmid.webtunneler.server2;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.mareksmid.webtunneler.server2.json.InitPacket;
 import cz.mareksmid.webtunneler.server2.json.ScenePacket;
 import cz.mareksmid.webtunneler.server2.json.PosPacket;

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 
+import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import cz.mareksmid.webtunneler.server2.json.InitPacket;
 import cz.mareksmid.webtunneler.server2.json.PosPacket;
 import org.slf4j.Logger;
@@ -17,7 +18,11 @@ import java.io.IOException;
 public class WSListener {
     
     private static final Logger log = LoggerFactory.getLogger(WSListener.class);
-    private static ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper mapper = new ObjectMapper();
+
+    static {
+        mapper.registerModule(new ParameterNamesModule());
+    }
 
     public static final String INIT_NEW = "NEW";
     public static final String INIT_JOIN = "JOIN";
