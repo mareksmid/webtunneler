@@ -39,6 +39,7 @@ public class Const {
     public static final int BULLET_DAMAGE = 5;
     public static final int HEALTH_INC = 1;
 
+    public static final int STONE_CNT = 20;
 
 
     public static final Polygon TANK_POLY = Scene.createPolygon(new Coordinate[]{
