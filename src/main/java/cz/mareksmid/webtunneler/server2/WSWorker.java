@@ -1,23 +1,25 @@
 package cz.mareksmid.webtunneler.server2;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.mareksmid.webtunneler.server2.json.InitPacket;
 import cz.mareksmid.webtunneler.server2.json.ScenePacket;
 import cz.mareksmid.webtunneler.server2.json.PosPacket;
 import javax.websocket.Session;
 
 class WSWorker {
-    
+
+    private static SceneGen sg = new SceneGen();
+
     private boolean assigned = false;
     private Session first, second = null;
     private String id;
     private Scene scene;
-    private SceneGen sg;
-    
+
+    private static ObjectMapper mapper = new ObjectMapper();
+
     public WSWorker(Session c, String id) {
         first = c;
         this.id = id;
-        sg = new SceneGen();
     }
 
     public void processPacket(PosPacket pp, Session c) {
@@ -26,9 +28,9 @@ class WSWorker {
         synchronized(scene) {
             try {
                 if (c.equals(first)) {
-                    first.getBasicRemote().sendObject(new Gson().toJson(scene.update(pp, true)));
+                    first.getBasicRemote().sendObject(mapper.writeValueAsString(scene.update(pp, true)));
                 } else {
-                    second.getBasicRemote().sendObject(new Gson().toJson(scene.update(pp, false)));
+                    second.getBasicRemote().sendObject(mapper.writeValueAsString(scene.update(pp, false)));
                 }
                 
                 if (scene.isExploded() != 0) {
@@ -39,11 +41,11 @@ class WSWorker {
                     ipe.setId(id);
                     ipe.setCmd("EEXPL");
                     if (scene.isExploded() == 1) {
-                        first.getBasicRemote().sendObject(new Gson().toJson(ip));
-                        second.getBasicRemote().sendObject(new Gson().toJson(ipe));
+                        first.getBasicRemote().sendObject(mapper.writeValueAsString(ip));
+                        second.getBasicRemote().sendObject(mapper.writeValueAsString(ipe));
                     } else if (scene.isExploded() == 2) {
-                        first.getBasicRemote().sendObject(new Gson().toJson(ipe));
-                        second.getBasicRemote().sendObject(new Gson().toJson(ip));
+                        first.getBasicRemote().sendObject(mapper.writeValueAsString(ipe));
+                        second.getBasicRemote().sendObject(mapper.writeValueAsString(ip));
                     }
                     init();
                 }
@@ -60,18 +62,13 @@ class WSWorker {
         assigned = true;
     }
 
-    public boolean isAssigned() {
-        return assigned;
-    }
-
     private void init() {
         scene = sg.generateScene();
         ScenePacket[] scenes = sg.getScenePackets(scene);
 
-        Gson g = new Gson();
         try {
-            first.getBasicRemote().sendObject(g.toJson(scenes[0]));
-            second.getBasicRemote().sendObject(g.toJson(scenes[1]));
+            first.getBasicRemote().sendObject(mapper.writeValueAsString(scenes[0]));
+            second.getBasicRemote().sendObject(mapper.writeValueAsString(scenes[1]));
         } catch (Exception ex) {
             ex.printStackTrace();
         }

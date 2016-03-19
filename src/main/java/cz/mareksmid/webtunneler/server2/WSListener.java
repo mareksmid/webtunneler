@@ -1,6 +1,6 @@
 package cz.mareksmid.webtunneler.server2;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.mareksmid.webtunneler.server2.json.InitPacket;
 import cz.mareksmid.webtunneler.server2.json.PosPacket;
 
@@ -8,6 +8,8 @@ import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 @ServerEndpoint(value="/wts", encoders = WSListener.StringEncoder.class)
 public class WSListener {
@@ -18,49 +20,46 @@ public class WSListener {
     public static final String INIT_JOIN = "JOIN";
 
     private static CommBean commBean = new CommBean();
+    private static ObjectMapper mapper = new ObjectMapper();
 
     @OnMessage
     public void processPacket(String message, Session sess) {
         String  c = sess.getId();
-        //System.out.println("packet: "+message+" - "+wsw+" - "+wsw.getConversation().getConversationID());
-        /*if (!firsts.contains(c)) {
-            System.out.println(""+c+":"+message);
-            firsts.add(c);
-        }*/
 
         String s = message;
         WSWorker w = commBean.getWorker(c);
 
-        Gson g = new Gson();
-        
-        if (w == null) {
-            InitPacket i = g.fromJson(s, InitPacket.class);
+        try {
+            if (w == null) {
+                InitPacket i = mapper.readValue(s, InitPacket.class);
 
-            if (INIT_NEW.equals(i.getCmd())) {
-                log.info("new worker for "+i.getId());
-                w = new WSWorker(sess, i.getId());
-                commBean.putWorkersById(i.getId(), w);
+                if (INIT_NEW.equals(i.getCmd())) {
+                    log.info("new worker for "+i.getId());
+                    w = new WSWorker(sess, i.getId());
+                    commBean.putWorkersById(i.getId(), w);
 
-            } else if (INIT_JOIN.equals(i.getCmd())) {
-                w = commBean.getWorkersById(i.getId());
-                if (w == null) {
-                    log.warn("Worker for second does not exist: "+i.getId());
+                } else if (INIT_JOIN.equals(i.getCmd())) {
+                    w = commBean.getWorkersById(i.getId());
+                    if (w == null) {
+                        log.warn("Worker for second does not exist: "+i.getId());
+                        return;
+                    }
+                    log.info("joined worker for "+i.getId());
+                    w.setSecond(sess);
+
+                } else {
+                    log.warn("Unknown init packet: "+s);
                     return;
                 }
-                log.info("joined worker for "+i.getId());
-                w.setSecond(sess);
 
+                commBean.putWorker(c, w);
             } else {
-                log.warn("Unknown init packet: "+s);
-                return;
+                PosPacket p = mapper.readValue(s, PosPacket.class);
+                w.processPacket(p, sess);
             }
-
-            commBean.putWorker(c, w);
-            return;
+        } catch (IOException ex) {
+            log.warn("Failed to parse packet", ex);
         }
-        
-        PosPacket p = g.fromJson(s, PosPacket.class);
-        w.processPacket(p, sess);
     }
 
 
