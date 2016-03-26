@@ -78,7 +78,7 @@ public class WSListener {
 
     @OnClose
     public void processClosed(Session session) {
-        log.info("Socket opened: session "+session);
+        log.info("Socket closed: session "+session);
     }
     @OnError
     public void processError(Session session, Throwable error) {

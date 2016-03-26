@@ -32,6 +32,7 @@ var WebTunneler = function(boardId, explodeId, newGame, gameId, server) {
     this.timer = null;
     this.shootCtr = 0;
     this.bulletId = 0;
+    this.started = false;
 
     this.tankImg = new Image();
     this.enemyTankImg = new Image();
@@ -40,8 +41,9 @@ var WebTunneler = function(boardId, explodeId, newGame, gameId, server) {
     this.explAudio = document.getElementById(explodeId);
 
     if (window.WebSocket === undefined) {
-        alert('Sockets not supported');
+        this.print('WebSockets not supported');
     } else {
+        this.print('Waiting for start...');
         this.openConnection();
     }
 };
@@ -53,8 +55,6 @@ WebTunneler.prototype.openConnection = function() {
             console.log('Socket open');
             var cmd = this.newGame ? 'NEW' : 'JOIN';
             this.sendInit(this.gameId, cmd);
-            //doTimer();
-            this.timer = setInterval(this.doTimer.bind(this), Consts.TIMER_INT);
         }.bind(this);
 
         this.conn.onmessage = this.processPacket.bind(this);
@@ -148,6 +148,11 @@ WebTunneler.prototype.initBoard = function(data) {
             this.dirt[x][y] = true;
         }
     }
+
+    if (!this.started) {
+        this.timer = setInterval(this.doTimer.bind(this), Consts.TIMER_INT);
+        this.started = true;
+    }
 };
 
 WebTunneler.prototype.updatePos = function() {
@@ -224,4 +229,9 @@ WebTunneler.prototype.keyUp = function(e) {
     } else if (c == 17) {
         this.shooting = false;
     }
+};
+
+WebTunneler.prototype.print = function(text) {
+    this.ctx.fillStyle = "#FF0000";
+    this.ctx.fillText(text, 10, 20);
 };
